@@ -1,0 +1,169 @@
+/**
+ * Seed Script — run with: npm run seed
+ * Inserts default admin and user accounts + sample facility metrics
+ */
+
+require('dotenv').config({ path: '../.env' });
+const mongoose = require('mongoose');
+const User = require('../models/User');
+const FacilityMetrics = require('../models/FacilityMetrics');
+
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/urbanflow';
+
+const SEED_USERS = [
+  {
+    name: 'City Admin',
+    email: 'admin@urbanflow.com',
+    password: 'admin123',
+    role: 'admin',
+  },
+  {
+    name: 'John Citizen',
+    email: 'user@urbanflow.com',
+    password: 'user123',
+    role: 'user',
+  },
+  {
+    name: 'Airport Admin',
+    email: 'airportadmin@urbanflow.com',
+    password: 'admin123',
+    role: 'admin',
+  },
+];
+
+const SEED_METRICS = [
+  {
+    facilityType: 'hospital',
+    locationId: 'hosp-001',
+    locationName: 'City General Hospital - Downtown',
+    adminEmail: 'admin@urbanflow.com',
+    metrics: {
+      queueLength: 42,
+      footTrafficCount: 280,
+      serviceDuration: 15,
+      staffAvailability: 12,
+      estimatedWaitTime: 35,
+      userCategory: 'General Public',
+      congestionLevel: 'high',
+      peakHour: true,
+      additionalNotes: 'OPD rush hours 10am-1pm. Extra staff deployed on weekends.',
+    },
+  },
+  {
+    facilityType: 'airport',
+    locationId: 'air-001',
+    locationName: 'International Terminal A',
+    adminEmail: 'airportadmin@urbanflow.com',
+    metrics: {
+      queueLength: 85,
+      footTrafficCount: 1200,
+      serviceDuration: 8,
+      staffAvailability: 20,
+      estimatedWaitTime: 45,
+      userCategory: 'Business Class',
+      congestionLevel: 'critical',
+      peakHour: true,
+      additionalNotes: 'Flight AI-202 delayed. Security check extended.',
+    },
+  },
+  {
+    facilityType: 'bank',
+    locationId: 'bank-001',
+    locationName: 'Central Bank - Main Branch',
+    adminEmail: 'admin@urbanflow.com',
+    metrics: {
+      queueLength: 18,
+      footTrafficCount: 95,
+      serviceDuration: 10,
+      staffAvailability: 6,
+      estimatedWaitTime: 20,
+      userCategory: 'General Public',
+      congestionLevel: 'moderate',
+      peakHour: false,
+      additionalNotes: 'Token system active. Counter 3 closed for maintenance.',
+    },
+  },
+  {
+    facilityType: 'government',
+    locationId: 'gov-001',
+    locationName: 'City Hall - Main Office',
+    adminEmail: 'admin@urbanflow.com',
+    metrics: {
+      queueLength: 30,
+      footTrafficCount: 150,
+      serviceDuration: 20,
+      staffAvailability: 8,
+      estimatedWaitTime: 50,
+      userCategory: 'General Public',
+      congestionLevel: 'high',
+      peakHour: true,
+      additionalNotes: 'Property tax deadline week. Extra tokens issued from 9am.',
+    },
+  },
+  {
+    facilityType: 'metro',
+    locationId: 'metro-001',
+    locationName: 'Central Metro Hub',
+    adminEmail: 'admin@urbanflow.com',
+    metrics: {
+      queueLength: 120,
+      footTrafficCount: 4500,
+      serviceDuration: 2,
+      staffAvailability: 15,
+      estimatedWaitTime: 5,
+      userCategory: 'General Public',
+      congestionLevel: 'critical',
+      peakHour: true,
+      additionalNotes: 'Morning rush hour. Platform 2 crowded.',
+    },
+  },
+];
+
+async function seed() {
+  console.log('🌱 Connecting to MongoDB...');
+  await mongoose.connect(MONGO_URI);
+  console.log('✅ Connected');
+
+  // Clear existing
+  await User.deleteMany({});
+  await FacilityMetrics.deleteMany({});
+  console.log('🗑️  Cleared existing data');
+
+  // Insert users
+  const createdUsers = await User.create(SEED_USERS);
+  console.log(`👤 Created ${createdUsers.length} users:`);
+  createdUsers.forEach(u => console.log(`   - ${u.role}: ${u.email}`));
+
+  // Insert metrics (link to admin users)
+  const userMap = {};
+  createdUsers.forEach(u => { userMap[u.email] = u; });
+
+  const metricsToInsert = SEED_METRICS.map(item => {
+    const admin = userMap[item.adminEmail];
+    return {
+      facilityType: item.facilityType,
+      locationId: item.locationId,
+      locationName: item.locationName,
+      admin: admin._id,
+      adminName: admin.name,
+      metrics: item.metrics,
+    };
+  });
+
+  const createdMetrics = await FacilityMetrics.insertMany(metricsToInsert);
+  console.log(`📊 Created ${createdMetrics.length} facility metric records`);
+
+  console.log('\n✅ Seed complete!');
+  console.log('\n🔑 Demo Credentials:');
+  console.log('   Admin:         admin@urbanflow.com / admin123');
+  console.log('   Airport Admin: airportadmin@urbanflow.com / admin123');
+  console.log('   User:          user@urbanflow.com / user123');
+
+  await mongoose.disconnect();
+  process.exit(0);
+}
+
+seed().catch(err => {
+  console.error('❌ Seed failed:', err);
+  process.exit(1);
+});
