@@ -3,672 +3,337 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FlowSync — Urban Facility Management</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<title>FlowSync IQ — Urban Facility Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --primary: #6C3BFF;
-    --primary-dark: #4A20D4;
-    --primary-light: #EDE8FF;
-    --accent: #FF6B35;
-    --accent2: #00D2A0;
-    --accent3: #FFD23F;
-    --bg: #0B0C1A;
-    --bg2: #12132A;
-    --bg3: #1A1B35;
-    --card: #1E1F3A;
-    --card2: #252647;
-    --border: rgba(108,59,255,0.2);
-    --text: #F0F0FF;
-    --text2: #A0A0C0;
-    --text3: #6060A0;
-    --red: #FF4D6D;
-    --orange: #FF9F43;
-    --green: #10D48A;
-    --blue: #4EAEFF;
-    --yellow: #FFD23F;
-    --radius: 16px;
-    --radius-sm: 10px;
-  }
+:root {
+  --primary: #6C3BFF;
+  --primary-dark: #4A20D4;
+  --primary-light: #EDE8FF;
+  --accent: #FF6B35;
+  --accent2: #00D2A0;
+  --accent3: #FFD23F;
+  --bg: #0B0C1A;
+  --bg2: #12132A;
+  --bg3: #1A1B35;
+  --card: #1E1F3A;
+  --card2: #252647;
+  --border: rgba(108,59,255,0.2);
+  --border2: rgba(0,255,180,0.12);
+  --text: #F0F0FF;
+  --text2: #A0A0C0;
+  --text3: #6060A0;
+  --red: #FF4D6D;
+  --orange: #FF9F43;
+  --green: #10D48A;
+  --neon: #00ffb4;
+  --blue: #4EAEFF;
+  --yellow: #FFD23F;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --mono: 'JetBrains Mono', monospace;
+}
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+h1,h2,h3,.logo{font-family:'Syne',sans-serif;}
 
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+/* BG ORBS */
+.bg-orb{position:fixed;border-radius:50%;filter:blur(90px);opacity:0.1;pointer-events:none;z-index:0;animation:floatOrb 14s ease-in-out infinite;}
+.orb1{width:700px;height:700px;background:var(--primary);top:-250px;left:-250px;animation-delay:0s;}
+.orb2{width:500px;height:500px;background:var(--accent);top:40%;right:-150px;animation-delay:5s;}
+.orb3{width:400px;height:400px;background:var(--accent2);bottom:5%;left:25%;animation-delay:10s;}
+@keyframes floatOrb{0%,100%{transform:translate(0,0);}50%{transform:translate(40px,-40px);}}
 
-  h1, h2, h3, .logo { font-family: 'Syne', sans-serif; }
+/* NOISE TEXTURE */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");opacity:.4;pointer-events:none;z-index:0;}
 
-  .bg-orb {
-    position: fixed;
-    border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.12;
-    pointer-events: none;
-    z-index: 0;
-    animation: floatOrb 12s ease-in-out infinite;
-  }
-  .orb1 { width: 600px; height: 600px; background: var(--primary); top: -200px; left: -200px; animation-delay: 0s; }
-  .orb2 { width: 400px; height: 400px; background: var(--accent); top: 50%; right: -100px; animation-delay: 4s; }
-  .orb3 { width: 300px; height: 300px; background: var(--accent2); bottom: 10%; left: 30%; animation-delay: 8s; }
+.page{display:none;min-height:100vh;position:relative;z-index:1;}
+.page.active{display:block;}
 
-  @keyframes floatOrb {
-    0%, 100% { transform: translate(0,0); }
-    50% { transform: translate(30px, -30px); }
-  }
+/* ======================== LANDING ======================== */
+#landing{display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:100vh;padding:2rem;}
+#landing.active{display:flex;}
 
-  .page { display: none; min-height: 100vh; position: relative; z-index: 1; }
-  .page.active { display: block; }
+.landing-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(108,59,255,0.15);border:1px solid rgba(108,59,255,0.3);color:#BBA8FF;font-size:13px;font-weight:500;padding:6px 20px;border-radius:100px;margin-bottom:2rem;letter-spacing:0.05em;}
+.landing-badge::before{content:'●';color:var(--neon);font-size:10px;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.2;}}
 
-  #landing {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    min-height: 100vh;
-    padding: 2rem;
-  }
-  #landing.active { display: flex; }
+.landing h1{font-size:clamp(2.8rem,7vw,6rem);font-weight:800;line-height:1.05;letter-spacing:-0.03em;margin-bottom:1.5rem;}
+.landing h1 .grad{background:linear-gradient(135deg,#6C3BFF,#FF6B35,#00D2A0,#00ffb4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 
-  .landing-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(108,59,255,0.15);
-    border: 1px solid rgba(108,59,255,0.3);
-    color: #BBA8FF;
-    font-size: 13px;
-    font-weight: 500;
-    padding: 6px 16px;
-    border-radius: 100px;
-    margin-bottom: 2rem;
-    letter-spacing: 0.05em;
-  }
-  .landing-badge::before { content: '●'; color: var(--accent2); font-size: 10px; animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+.landing-sub{font-size:1.15rem;color:var(--text2);max-width:640px;line-height:1.8;margin-bottom:3rem;font-weight:300;}
 
-  .landing h1 {
-    font-size: clamp(3rem, 7vw, 6rem);
-    font-weight: 800;
-    line-height: 1.05;
-    letter-spacing: -0.03em;
-    margin-bottom: 1.5rem;
-  }
-  .landing h1 span {
-    background: linear-gradient(135deg, #6C3BFF, #FF6B35, #00D2A0);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
+.feature-strip{display:flex;gap:1.5rem;flex-wrap:wrap;justify-content:center;margin-bottom:3rem;}
+.feat-pill{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:100px;padding:8px 18px;font-size:0.82rem;color:var(--text2);}
+.feat-pill span{font-size:1rem;}
 
-  .landing-sub {
-    font-size: 1.2rem;
-    color: var(--text2);
-    max-width: 600px;
-    line-height: 1.7;
-    margin-bottom: 3rem;
-    font-weight: 300;
-  }
+.landing-cards{display:flex;gap:1.5rem;flex-wrap:wrap;justify-content:center;margin-bottom:4rem;}
 
-  .landing-cards {
-    display: flex;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-bottom: 4rem;
-  }
+.role-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem 2.5rem;cursor:pointer;transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);width:280px;text-align:center;position:relative;overflow:hidden;}
+.role-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity 0.3s;border-radius:inherit;}
+.admin-card::before{background:radial-gradient(circle at top,rgba(108,59,255,0.2),transparent);}
+.user-card::before{background:radial-gradient(circle at top,rgba(0,210,160,0.2),transparent);}
+.role-card:hover{transform:translateY(-10px) scale(1.02);border-color:rgba(108,59,255,0.5);box-shadow:0 20px 60px rgba(108,59,255,0.2);}
+.role-card:hover::before{opacity:1;}
 
-  .role-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 2rem 2.5rem;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    width: 260px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-  .role-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    transition: opacity 0.3s;
-    border-radius: inherit;
-  }
-  .role-card.admin-card::before { background: radial-gradient(circle at top, rgba(108,59,255,0.15), transparent); }
-  .role-card.user-card::before { background: radial-gradient(circle at top, rgba(0,210,160,0.15), transparent); }
-  .role-card:hover { transform: translateY(-8px) scale(1.02); border-color: rgba(108,59,255,0.5); }
-  .role-card:hover::before { opacity: 1; }
+.role-icon{width:80px;height:80px;border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:2.2rem;margin:0 auto 1.5rem;}
+.admin-icon{background:rgba(108,59,255,0.2);border:1px solid rgba(108,59,255,0.3);}
+.user-icon{background:rgba(0,210,160,0.2);border:1px solid rgba(0,210,160,0.3);}
+.role-card h3{font-size:1.3rem;font-weight:700;margin-bottom:0.5rem;}
+.role-card p{font-size:0.88rem;color:var(--text2);line-height:1.6;}
+.role-btn{display:inline-block;margin-top:1.5rem;padding:10px 28px;border-radius:100px;font-size:0.85rem;font-weight:600;border:none;cursor:pointer;transition:all 0.2s;font-family:'Syne',sans-serif;}
+.admin-card .role-btn{background:var(--primary);color:white;}
+.user-card .role-btn{background:var(--accent2);color:#003d2d;}
 
-  .role-icon {
-    width: 72px; height: 72px;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    margin: 0 auto 1.5rem;
-  }
-  .admin-icon { background: rgba(108,59,255,0.2); }
-  .user-icon { background: rgba(0,210,160,0.2); }
+.stats-strip{display:flex;gap:3rem;flex-wrap:wrap;justify-content:center;}
+.stat-item{text-align:center;}
+.stat-item .num{font-family:'Syne',sans-serif;font-size:2rem;font-weight:700;}
+.stat-item .lbl{font-size:0.78rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-top:4px;}
 
-  .role-card h3 { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.5rem; }
-  .role-card p { font-size: 0.9rem; color: var(--text2); line-height: 1.5; }
+/* ======================== LOGIN ======================== */
+#login{display:none;align-items:center;justify-content:center;min-height:100vh;padding:2rem;flex-direction:column;gap:2rem;}
+#login.active{display:flex;}
+.login-box{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:2.5rem;width:100%;max-width:440px;position:relative;overflow:hidden;}
+.login-box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--primary),var(--accent),var(--accent2),var(--neon));}
+.login-back{display:flex;align-items:center;gap:8px;color:var(--text2);font-size:0.9rem;cursor:pointer;background:none;border:none;margin-bottom:2rem;padding:0;transition:color 0.2s;}
+.login-back:hover{color:var(--text);}
+.login-box h2{font-size:1.8rem;font-weight:700;margin-bottom:0.4rem;}
+.login-box .login-sub{color:var(--text2);font-size:0.9rem;margin-bottom:2rem;}
+.form-group{margin-bottom:1.2rem;}
+.form-group label{display:block;font-size:0.85rem;color:var(--text2);margin-bottom:6px;font-weight:500;}
+.form-group input{width:100%;background:var(--bg3);border:1px solid rgba(255,255,255,0.08);border-radius:var(--radius-sm);padding:12px 16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.95rem;transition:border-color 0.2s,box-shadow 0.2s;outline:none;}
+.form-group input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(108,59,255,0.15);}
+.login-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;border:none;border-radius:var(--radius-sm);font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.2s;margin-top:0.5rem;}
+.login-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(108,59,255,0.4);}
+.login-btn.green{background:linear-gradient(135deg,var(--accent2),#00a07a);}
+.login-btn.green:hover{box-shadow:0 8px 24px rgba(0,210,160,0.4);}
+.login-error{background:rgba(255,77,109,0.1);border:1px solid rgba(255,77,109,0.3);color:#ff8fa3;border-radius:var(--radius-sm);padding:10px 14px;font-size:0.85rem;margin-top:1rem;display:none;}
+.demo-creds{background:rgba(108,59,255,0.08);border:1px solid rgba(108,59,255,0.2);border-radius:var(--radius-sm);padding:12px 16px;font-size:0.82rem;color:var(--text2);margin-top:1.2rem;}
+.demo-creds strong{color:#BBA8FF;}
 
-  .role-btn {
-    display: inline-block;
-    margin-top: 1.5rem;
-    padding: 10px 24px;
-    border-radius: 100px;
-    font-size: 0.85rem;
-    font-weight: 500;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .admin-card .role-btn { background: var(--primary); color: white; }
-  .user-card .role-btn { background: var(--accent2); color: #003d2d; }
+/* ======================== NAVBAR ======================== */
+.navbar{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;background:rgba(11,12,26,0.9);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
+.logo{font-size:1.4rem;font-weight:800;letter-spacing:-0.03em;}
+.logo span{color:var(--primary);}
+.logo em{color:var(--neon);font-style:normal;}
+.nav-user{display:flex;align-items:center;gap:1rem;}
+.nav-tabs{display:flex;gap:4px;background:rgba(255,255,255,0.05);border-radius:10px;padding:4px;}
+.nav-tab{padding:7px 16px;border-radius:7px;font-size:0.82rem;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--text2);transition:all 0.2s;font-family:'DM Sans',sans-serif;}
+.nav-tab.active{background:var(--card2);color:var(--text);}
+.nav-badge{padding:4px 12px;border-radius:100px;font-size:0.78rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;}
+.nav-badge.admin{background:rgba(108,59,255,0.2);color:#BBA8FF;border:1px solid rgba(108,59,255,0.3);}
+.nav-badge.user{background:rgba(0,210,160,0.2);color:#00D2A0;border:1px solid rgba(0,210,160,0.3);}
+.nav-logout{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:var(--text2);padding:6px 14px;border-radius:var(--radius-sm);font-size:0.85rem;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif;}
+.nav-logout:hover{background:rgba(255,77,109,0.1);border-color:rgba(255,77,109,0.3);color:var(--red);}
 
-  .stats-strip { display: flex; gap: 3rem; flex-wrap: wrap; justify-content: center; }
-  .stat-item { text-align: center; }
-  .stat-item .num { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 700; }
-  .stat-item .lbl { font-size: 0.8rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 4px; }
+/* ======================== DASHBOARD COMMON ======================== */
+.dashboard{padding:2rem;max-width:1500px;margin:0 auto;}
+.tab-section{display:none;}
+.tab-section.active{display:block;}
+.dash-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;}
+.dash-title{font-size:2rem;font-weight:800;}
+.dash-title span{color:var(--primary);}
+.dash-sub{color:var(--text2);font-size:0.9rem;margin-top:4px;}
 
-  #login {
-    display: none;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    padding: 2rem;
-    flex-direction: column;
-    gap: 2rem;
-  }
-  #login.active { display: flex; }
+.facility-selector{margin-bottom:2rem;}
+.facility-selector h3{font-size:0.78rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--text3);margin-bottom:1rem;font-family:var(--mono);}
+.facility-grid{display:flex;flex-wrap:wrap;gap:8px;}
+.fac-chip{display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--card);border:1px solid var(--border);border-radius:100px;cursor:pointer;transition:all 0.25s;font-size:0.85rem;color:var(--text2);white-space:nowrap;}
+.fac-chip:hover{border-color:rgba(108,59,255,0.4);color:var(--text);}
+.fac-chip.active{background:rgba(108,59,255,0.15);border-color:var(--primary);color:#BBA8FF;font-weight:500;}
+.fac-chip .fac-icon{font-size:1rem;}
 
-  .login-box {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 24px;
-    padding: 2.5rem;
-    width: 100%;
-    max-width: 440px;
-    position: relative;
-    overflow: hidden;
-  }
-  .login-box::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--primary), var(--accent), var(--accent2));
-  }
+.location-select{margin-bottom:2rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+.location-select label{font-size:0.85rem;color:var(--text2);font-weight:500;}
+.location-select select{background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:var(--radius-sm);padding:10px 16px;font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;cursor:pointer;min-width:220px;transition:border-color 0.2s;}
+.location-select select:focus{border-color:var(--primary);}
 
-  .login-back {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--text2);
-    font-size: 0.9rem;
-    cursor: pointer;
-    background: none;
-    border: none;
-    margin-bottom: 2rem;
-    padding: 0;
-    transition: color 0.2s;
-  }
-  .login-back:hover { color: var(--text); }
+.overview-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1rem;margin-bottom:2rem;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;position:relative;overflow:hidden;transition:transform 0.2s;}
+.stat-card:hover{transform:translateY(-3px);}
+.stat-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;border-radius:0 0 var(--radius) var(--radius);}
+.stat-card.c-purple::after{background:var(--primary);}
+.stat-card.c-green::after{background:var(--green);}
+.stat-card.c-orange::after{background:var(--orange);}
+.stat-card.c-blue::after{background:var(--blue);}
+.stat-card.c-red::after{background:var(--red);}
+.stat-card.c-yellow::after{background:var(--yellow);}
+.stat-card.c-neon::after{background:var(--neon);}
+.stat-card .sc-icon{font-size:1.4rem;margin-bottom:0.8rem;display:block;}
+.stat-card .sc-val{font-family:'Syne',sans-serif;font-size:2rem;font-weight:700;line-height:1;}
+.stat-card .sc-lbl{font-size:0.78rem;color:var(--text2);margin-top:6px;}
 
-  .login-box h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.4rem; }
-  .login-box .login-sub { color: var(--text2); font-size: 0.9rem; margin-bottom: 2rem; }
+.content-grid{display:grid;grid-template-columns:1fr 360px;gap:1.5rem;margin-bottom:2rem;}
+.admin-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;}
+.panel-title{font-size:1.05rem;font-weight:700;margin-bottom:1.5rem;display:flex;align-items:center;gap:10px;font-family:'Syne',sans-serif;}
+.panel-title-icon{width:32px;height:32px;border-radius:8px;background:rgba(108,59,255,0.2);display:flex;align-items:center;justify-content:center;font-size:1rem;}
 
-  .form-group { margin-bottom: 1.2rem; }
-  .form-group label { display: block; font-size: 0.85rem; color: var(--text2); margin-bottom: 6px; font-weight: 500; }
-  .form-group input {
-    width: 100%;
-    background: var(--bg3);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: var(--radius-sm);
-    padding: 12px 16px;
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.95rem;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    outline: none;
-  }
-  .form-group input:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(108,59,255,0.15);
-  }
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.input-group{margin-bottom:1.2rem;}
+.input-group label{display:block;font-size:0.82rem;color:var(--text2);margin-bottom:6px;font-weight:500;}
+.input-group input,.input-group select,.input-group textarea{width:100%;background:var(--bg3);border:1px solid rgba(255,255,255,0.07);border-radius:var(--radius-sm);padding:10px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;transition:border-color 0.2s;}
+.input-group input:focus,.input-group select:focus,.input-group textarea:focus{border-color:var(--primary);}
+.input-group textarea{resize:vertical;min-height:80px;}
 
-  .login-btn {
-    width: 100%;
-    padding: 14px;
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-    color: white;
-    border: none;
-    border-radius: var(--radius-sm);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-top: 0.5rem;
-  }
-  .login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(108,59,255,0.4); }
-  .login-btn.green { background: linear-gradient(135deg, var(--accent2), #00a07a); }
-  .login-btn.green:hover { box-shadow: 0 8px 24px rgba(0,210,160,0.4); }
+.range-group{margin-bottom:1.2rem;}
+.range-group label{display:flex;justify-content:space-between;align-items:center;font-size:0.82rem;color:var(--text2);margin-bottom:8px;}
+.range-group label span{font-weight:700;color:var(--text);font-size:1rem;}
+.range-group input[type=range]{width:100%;accent-color:var(--primary);height:4px;border-radius:2px;cursor:pointer;}
 
-  .login-error {
-    background: rgba(255,77,109,0.1);
-    border: 1px solid rgba(255,77,109,0.3);
-    color: #ff8fa3;
-    border-radius: var(--radius-sm);
-    padding: 10px 14px;
-    font-size: 0.85rem;
-    margin-top: 1rem;
-    display: none;
-  }
+.submit-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--primary),#8B5CF6);color:white;border:none;border-radius:var(--radius-sm);font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:0.03em;transition:all 0.25s;margin-top:0.5rem;}
+.submit-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(108,59,255,0.4);}
+.success-msg{background:rgba(16,212,138,0.1);border:1px solid rgba(16,212,138,0.3);color:var(--green);border-radius:var(--radius-sm);padding:12px;font-size:0.88rem;text-align:center;margin-top:1rem;display:none;}
 
-  .demo-creds {
-    background: rgba(108,59,255,0.08);
-    border: 1px solid rgba(108,59,255,0.2);
-    border-radius: var(--radius-sm);
-    padding: 12px 16px;
-    font-size: 0.82rem;
-    color: var(--text2);
-    margin-top: 1.2rem;
-  }
-  .demo-creds strong { color: #BBA8FF; }
+.alerts-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;display:flex;flex-direction:column;}
+.alert-item{padding:1rem 0;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;gap:12px;align-items:flex-start;}
+.alert-item:last-child{border-bottom:none;padding-bottom:0;}
+.alert-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0;}
+.alert-dot.high{background:var(--red);box-shadow:0 0 8px rgba(255,77,109,0.6);}
+.alert-dot.med{background:var(--orange);box-shadow:0 0 8px rgba(255,159,67,0.6);}
+.alert-dot.low{background:var(--green);box-shadow:0 0 8px rgba(16,212,138,0.6);}
+.alert-content .al-title{font-size:0.88rem;font-weight:500;margin-bottom:3px;}
+.alert-content .al-sub{font-size:0.78rem;color:var(--text2);}
 
-  .navbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem 2rem;
-    background: rgba(11,12,26,0.85);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .logo { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.03em; }
-  .logo span { color: var(--primary); }
-  .logo em { color: var(--accent2); font-style: normal; }
+.data-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;overflow-x:auto;margin-bottom:2rem;}
+.data-table{width:100%;border-collapse:collapse;font-size:0.85rem;}
+.data-table th{text-align:left;padding:10px 14px;color:var(--text3);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;font-weight:600;border-bottom:1px solid rgba(255,255,255,0.06);white-space:nowrap;font-family:var(--mono);}
+.data-table td{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.04);color:var(--text);}
+.data-table tr:hover td{background:rgba(108,59,255,0.04);}
+.data-table tr:last-child td{border-bottom:none;}
 
-  .nav-user { display: flex; align-items: center; gap: 1rem; }
-  .nav-badge {
-    padding: 4px 12px;
-    border-radius: 100px;
-    font-size: 0.78rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-  .nav-badge.admin { background: rgba(108,59,255,0.2); color: #BBA8FF; border: 1px solid rgba(108,59,255,0.3); }
-  .nav-badge.user { background: rgba(0,210,160,0.2); color: #00D2A0; border: 1px solid rgba(0,210,160,0.3); }
+.badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:0.72rem;font-weight:600;}
+.badge-red{background:rgba(255,77,109,0.15);color:#FF8FA3;border:1px solid rgba(255,77,109,0.25);}
+.badge-orange{background:rgba(255,159,67,0.15);color:#FFBB77;border:1px solid rgba(255,159,67,0.25);}
+.badge-green{background:rgba(16,212,138,0.15);color:#40DCA0;border:1px solid rgba(16,212,138,0.25);}
+.badge-blue{background:rgba(78,174,255,0.15);color:#80C8FF;border:1px solid rgba(78,174,255,0.25);}
+.badge-neon{background:rgba(0,255,180,0.12);color:var(--neon);border:1px solid rgba(0,255,180,0.25);}
 
-  .nav-logout {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.1);
-    color: var(--text2);
-    padding: 6px 14px;
-    border-radius: var(--radius-sm);
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .nav-logout:hover { background: rgba(255,77,109,0.1); border-color: rgba(255,77,109,0.3); color: var(--red); }
+.flow-bar{height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;width:100px;display:inline-block;vertical-align:middle;}
+.flow-fill{height:100%;border-radius:3px;transition:width 0.5s ease;}
 
-  .dashboard { padding: 2rem; max-width: 1400px; margin: 0 auto; }
+.live-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;margin-bottom:2rem;}
+.live-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;position:relative;overflow:hidden;transition:all 0.3s;}
+.live-card:hover{border-color:rgba(108,59,255,0.4);transform:translateY(-2px);}
+.live-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+.lc-title{font-weight:600;font-size:0.95rem;display:flex;align-items:center;gap:8px;}
+.live-indicator{display:flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--green);font-weight:500;font-family:var(--mono);}
+.live-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 1.5s infinite;}
+.metric-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.85rem;}
+.metric-row:last-child{border-bottom:none;}
+.metric-row .m-key{color:var(--text2);}
+.metric-row .m-val{font-weight:600;}
+.capacity-ring{width:80px;height:80px;position:relative;margin:0 auto 1rem;}
+.capacity-ring svg{width:80px;height:80px;transform:rotate(-90deg);}
+.capacity-ring .ring-bg{fill:none;stroke:rgba(255,255,255,0.07);stroke-width:6;}
+.capacity-ring .ring-fill{fill:none;stroke-width:6;stroke-linecap:round;transition:stroke-dasharray 0.8s ease;}
+.ring-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;}
 
-  .dash-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 2rem;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-  .dash-title { font-size: 2rem; font-weight: 800; }
-  .dash-title span { color: var(--primary); }
-  .dash-sub { color: var(--text2); font-size: 0.9rem; margin-top: 4px; }
+.empty-state{text-align:center;padding:4rem 2rem;color:var(--text2);}
+.empty-state .es-icon{font-size:3rem;margin-bottom:1rem;opacity:0.5;}
+.empty-state h3{font-size:1.1rem;margin-bottom:0.5rem;color:var(--text);}
+.empty-state p{font-size:0.88rem;max-width:300px;margin:0 auto;}
 
-  .facility-selector { margin-bottom: 2rem; }
-  .facility-selector h3 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); margin-bottom: 1rem; }
+.last-updated{font-size:0.75rem;color:var(--text3);margin-top:1rem;text-align:right;font-family:var(--mono);}
 
-  .facility-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+/* ======================== HARDWARE TAB ======================== */
+.hw-banner{display:flex;gap:12px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.22);border-left:3px solid #f59e0b;border-radius:10px;padding:14px 18px;margin-bottom:2rem;font-size:0.84rem;color:rgba(245,158,11,0.9);line-height:1.7;}
+.hw-banner strong{color:#f59e0b;}
 
-  .fac-chip {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 18px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 100px;
-    cursor: pointer;
-    transition: all 0.25s;
-    font-size: 0.88rem;
-    color: var(--text2);
-    white-space: nowrap;
-  }
-  .fac-chip:hover { border-color: rgba(108,59,255,0.4); color: var(--text); }
-  .fac-chip.active {
-    background: rgba(108,59,255,0.15);
-    border-color: var(--primary);
-    color: #BBA8FF;
-    font-weight: 500;
-  }
-  .fac-chip .fac-icon { font-size: 1.1rem; }
+.hw-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:2rem;}
+.hw-stat{background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:1.3rem;position:relative;overflow:hidden;transition:border-color 0.2s,transform 0.2s;}
+.hw-stat:hover{border-color:rgba(0,255,180,0.28);transform:translateY(-2px);}
+.hw-stat::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;}
+.hw-stat:nth-child(1)::before{background:var(--neon);}
+.hw-stat:nth-child(2)::before{background:var(--blue);}
+.hw-stat:nth-child(3)::before{background:#f59e0b;}
+.hw-stat:nth-child(4)::before{background:#2dd4bf;}
+.hw-stat .hw-icon{font-size:1.4rem;margin-bottom:0.6rem;}
+.hw-stat h4{font-size:0.82rem;font-weight:600;margin-bottom:3px;}
+.hw-stat p{font-size:0.72rem;color:var(--text2);line-height:1.6;margin-bottom:8px;}
+.hw-stat .hw-val{font-family:var(--mono);font-size:1.5rem;font-weight:700;}
+.hw-stat:nth-child(1) .hw-val{color:var(--neon);}
+.hw-stat:nth-child(2) .hw-val{color:var(--blue);}
+.hw-stat:nth-child(3) .hw-val{color:#f59e0b;}
+.hw-stat:nth-child(4) .hw-val{color:#2dd4bf;}
+.hw-stat .hw-lbl{font-size:0.68rem;color:var(--text3);font-family:var(--mono);}
 
-  .location-select {
-    margin-bottom: 2rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-  .location-select label { font-size: 0.85rem; color: var(--text2); font-weight: 500; }
-  .location-select select {
-    background: var(--card);
-    border: 1px solid var(--border);
-    color: var(--text);
-    border-radius: var(--radius-sm);
-    padding: 10px 16px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.9rem;
-    outline: none;
-    cursor: pointer;
-    min-width: 200px;
-    transition: border-color 0.2s;
-  }
-  .location-select select:focus { border-color: var(--primary); }
+/* Sim panel */
+.sim-panel{background:rgba(13,17,23,0.8);border:1px solid var(--border2);border-radius:var(--radius);padding:1.8rem;margin-bottom:2rem;}
+.sim-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:10px;}
+.sim-top h2{font-size:1rem;font-weight:600;}
+.sim-live-badge{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--neon);background:rgba(0,255,180,0.09);border:1px solid rgba(0,255,180,0.22);padding:4px 10px;border-radius:4px;}
 
-  .overview-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 1rem;
-    margin-bottom: 2rem;
-  }
+.sensor-flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:1.5rem;}
+.snode{background:rgba(19,25,32,0.9);border:1px solid var(--border2);border-radius:10px;padding:1rem 1.2rem;text-align:center;min-width:100px;flex-shrink:0;transition:all 0.3s;}
+.snode.active-flash{border-color:rgba(0,255,180,0.4);box-shadow:0 0 16px rgba(0,255,180,0.15);}
+.snode .sv{font-family:var(--mono);font-size:1.4rem;font-weight:700;color:var(--neon);}
+.snode .sl{font-size:0.66rem;color:var(--text3);margin-top:3px;}
+.flow-arrow{color:var(--neon);font-size:1.2rem;opacity:0.4;animation:arrowPulse 1.5s ease-in-out infinite;flex-shrink:0;}
+@keyframes arrowPulse{0%,100%{opacity:0.15;}50%{opacity:0.8;}}
+.hub-node{flex:1;min-width:150px;background:rgba(0,255,180,0.04);border:1px dashed rgba(0,255,180,0.25);border-radius:12px;padding:1.2rem;text-align:center;}
+.hub-node .ht{font-size:0.65rem;color:var(--text3);font-family:var(--mono);margin-bottom:4px;letter-spacing:1px;}
+.hub-node .hv{font-family:var(--mono);font-size:2rem;font-weight:700;color:var(--neon);}
+.hub-node .hl{font-size:0.65rem;color:var(--text3);}
 
-  .stat-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.5rem;
-    position: relative;
-    overflow: hidden;
-    transition: transform 0.2s;
-  }
-  .stat-card:hover { transform: translateY(-3px); }
-  .stat-card::after {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 3px;
-    border-radius: 0 0 var(--radius) var(--radius);
-  }
-  .stat-card.c-purple::after { background: var(--primary); }
-  .stat-card.c-green::after { background: var(--green); }
-  .stat-card.c-orange::after { background: var(--orange); }
-  .stat-card.c-blue::after { background: var(--blue); }
-  .stat-card.c-red::after { background: var(--red); }
-  .stat-card.c-yellow::after { background: var(--yellow); }
+.sim-log{background:rgba(19,25,32,0.9);border:1px solid var(--border2);border-radius:8px;padding:1rem;height:120px;overflow-y:auto;font-family:var(--mono);font-size:0.72rem;color:var(--text2);margin-bottom:1.2rem;}
+.sim-log::-webkit-scrollbar{width:2px;}
+.sim-log::-webkit-scrollbar-thumb{background:rgba(0,255,180,0.2);}
+.ll{padding:2px 0;display:flex;gap:12px;}
+.lt{color:rgba(0,255,180,0.45);flex-shrink:0;}
+.le{color:var(--neon);}
+.lx{color:var(--blue);}
 
-  .stat-card .sc-icon { font-size: 1.5rem; margin-bottom: 1rem; display: block; }
-  .stat-card .sc-val { font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 700; line-height: 1; }
-  .stat-card .sc-lbl { font-size: 0.8rem; color: var(--text2); margin-top: 6px; }
-  .stat-card .sc-change { font-size: 0.75rem; margin-top: 8px; }
-  .sc-change.up { color: var(--green); }
-  .sc-change.down { color: var(--red); }
-  .sc-change.warn { color: var(--orange); }
+.sim-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.sim-btn{display:inline-flex;align-items:center;gap:7px;background:rgba(0,255,180,0.09);border:1px solid rgba(0,255,180,0.28);color:var(--neon);font-family:var(--mono);font-size:0.78rem;padding:9px 18px;border-radius:6px;cursor:pointer;transition:all 0.2s;}
+.sim-btn:hover{background:rgba(0,255,180,0.16);}
+.sim-btn.stop{background:rgba(242,92,92,0.09);border-color:rgba(242,92,92,0.28);color:var(--red);}
+.sim-btn.rst{border-color:rgba(255,255,255,0.08);color:var(--text2);background:transparent;}
+.spd-ctrl{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:0.74rem;color:var(--text2);}
+.spd-ctrl input{accent-color:var(--neon);width:70px;}
 
-  .content-grid {
-    display: grid;
-    grid-template-columns: 1fr 380px;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-  }
+/* Occupancy */
+.occ-panel{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);padding:1.5rem;margin-bottom:2rem;}
+.occ-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;}
+.occ-header h2{font-size:1rem;font-weight:600;}
+.occ-big{font-family:var(--mono);font-size:2.2rem;font-weight:700;}
+.occ-track{height:14px;background:rgba(255,255,255,0.06);border-radius:100px;overflow:hidden;margin-bottom:6px;}
+.occ-fill{height:100%;border-radius:100px;transition:width 0.8s ease,background 0.4s;}
+.occ-labels{display:flex;justify-content:space-between;font-size:0.68rem;color:var(--text3);margin-bottom:1.2rem;font-family:var(--mono);}
+.occ-mini{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.occ-ms{background:rgba(19,25,32,0.8);border-radius:8px;padding:10px;text-align:center;}
+.occ-ms .mv{font-family:var(--mono);font-size:1.1rem;font-weight:700;}
+.occ-ms .ml{font-size:0.65rem;color:var(--text3);margin-top:2px;}
 
-  .admin-panel {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 2rem;
-  }
-  .panel-title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .panel-title-icon {
-    width: 32px; height: 32px;
-    border-radius: 8px;
-    background: rgba(108,59,255,0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1rem;
-  }
+/* Pipeline */
+.pipeline-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:2rem;overflow-x:auto;}
+.pipeline-panel h2{font-size:1rem;font-weight:600;margin-bottom:1.2rem;}
+.pipeline{display:flex;align-items:center;min-width:500px;}
+.pn{background:rgba(19,25,32,0.8);border:1px solid rgba(0,255,180,0.15);border-radius:10px;padding:0.9rem 1rem;text-align:center;flex-shrink:0;}
+.pn .pi{font-size:1.3rem;margin-bottom:4px;}
+.pn .pt{font-size:0.75rem;font-weight:600;}
+.pn .ps{font-size:0.62rem;color:var(--text3);}
+.pa{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:0 4px;}
+.pa .pl{height:2px;width:100%;background:linear-gradient(90deg,var(--neon),rgba(0,255,180,0.1));}
+.pa .pk{font-size:0.58rem;color:var(--neon);font-family:var(--mono);}
 
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-  .input-group { margin-bottom: 1.2rem; }
-  .input-group label { display: block; font-size: 0.82rem; color: var(--text2); margin-bottom: 6px; font-weight: 500; }
-  .input-group input, .input-group select, .input-group textarea {
-    width: 100%;
-    background: var(--bg3);
-    border: 1px solid rgba(255,255,255,0.07);
-    border-radius: var(--radius-sm);
-    padding: 10px 14px;
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.9rem;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .input-group input:focus, .input-group select:focus, .input-group textarea:focus { border-color: var(--primary); }
-  .input-group textarea { resize: vertical; min-height: 80px; }
+/* Scrollbar */
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(108,59,255,0.3);border-radius:3px;}
 
-  .range-group { margin-bottom: 1.2rem; }
-  .range-group label { display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; color: var(--text2); margin-bottom: 8px; }
-  .range-group label span { font-weight: 700; color: var(--text); font-size: 1rem; }
-  .range-group input[type=range] { width: 100%; accent-color: var(--primary); height: 4px; border-radius: 2px; cursor: pointer; }
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.fade-in{animation:fadeUp 0.4s ease forwards;}
+@keyframes flash{0%,100%{box-shadow:none;}50%{box-shadow:0 0 16px rgba(0,255,180,0.3);border-color:rgba(0,255,180,0.5);}}
+.fl{animation:flash 0.4s ease;}
 
-  .submit-btn {
-    width: 100%;
-    padding: 14px;
-    background: linear-gradient(135deg, var(--primary), #8B5CF6);
-    color: white;
-    border: none;
-    border-radius: var(--radius-sm);
-    font-family: 'Syne', sans-serif;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    letter-spacing: 0.03em;
-    transition: all 0.25s;
-    margin-top: 0.5rem;
-  }
-  .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(108,59,255,0.4); }
-
-  .success-msg {
-    background: rgba(16,212,138,0.1);
-    border: 1px solid rgba(16,212,138,0.3);
-    color: var(--green);
-    border-radius: var(--radius-sm);
-    padding: 12px;
-    font-size: 0.88rem;
-    text-align: center;
-    margin-top: 1rem;
-    display: none;
-  }
-
-  .alerts-panel {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-  }
-
-  .alert-item {
-    padding: 1rem 0;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-  }
-  .alert-item:last-child { border-bottom: none; padding-bottom: 0; }
-  .alert-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
-  .alert-dot.high { background: var(--red); box-shadow: 0 0 8px rgba(255,77,109,0.6); }
-  .alert-dot.med { background: var(--orange); box-shadow: 0 0 8px rgba(255,159,67,0.6); }
-  .alert-dot.low { background: var(--green); box-shadow: 0 0 8px rgba(16,212,138,0.6); }
-  .alert-content .al-title { font-size: 0.88rem; font-weight: 500; margin-bottom: 3px; }
-  .alert-content .al-sub { font-size: 0.78rem; color: var(--text2); }
-
-  .data-panel {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 2rem;
-    overflow-x: auto;
-  }
-
-  .data-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
-  .data-table th {
-    text-align: left;
-    padding: 10px 14px;
-    color: var(--text3);
-    font-size: 0.78rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-weight: 600;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-    white-space: nowrap;
-  }
-  .data-table td { padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--text); }
-  .data-table tr:hover td { background: rgba(108,59,255,0.04); }
-  .data-table tr:last-child td { border-bottom: none; }
-
-  .badge { display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 0.75rem; font-weight: 600; }
-  .badge-red { background: rgba(255,77,109,0.15); color: #FF8FA3; border: 1px solid rgba(255,77,109,0.25); }
-  .badge-orange { background: rgba(255,159,67,0.15); color: #FFBB77; border: 1px solid rgba(255,159,67,0.25); }
-  .badge-green { background: rgba(16,212,138,0.15); color: #40DCA0; border: 1px solid rgba(16,212,138,0.25); }
-  .badge-blue { background: rgba(78,174,255,0.15); color: #80C8FF; border: 1px solid rgba(78,174,255,0.25); }
-
-  .flow-bar { height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; width: 100px; display: inline-block; vertical-align: middle; }
-  .flow-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
-
-  .live-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1rem;
-    margin-bottom: 2rem;
-  }
-
-  .live-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.5rem;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s;
-  }
-  .live-card:hover { border-color: rgba(108,59,255,0.4); transform: translateY(-2px); }
-
-  .live-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
-  .lc-title { font-weight: 600; font-size: 1rem; display: flex; align-items: center; gap: 8px; }
-  .lc-icon { font-size: 1.2rem; }
-
-  .live-indicator { display: flex; align-items: center; gap: 5px; font-size: 0.75rem; color: var(--green); font-weight: 500; }
-  .live-dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; animation: pulse 1.5s infinite; }
-
-  .metric-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-    font-size: 0.88rem;
-  }
-  .metric-row:last-child { border-bottom: none; }
-  .metric-row .m-key { color: var(--text2); }
-  .metric-row .m-val { font-weight: 600; }
-
-  .capacity-ring { width: 80px; height: 80px; position: relative; margin: 0 auto 1rem; }
-  .capacity-ring svg { width: 80px; height: 80px; transform: rotate(-90deg); }
-  .capacity-ring .ring-bg { fill: none; stroke: rgba(255,255,255,0.07); stroke-width: 6; }
-  .capacity-ring .ring-fill { fill: none; stroke-width: 6; stroke-linecap: round; transition: stroke-dasharray 0.8s ease; }
-  .ring-label {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Syne', sans-serif;
-    font-size: 1.1rem;
-    font-weight: 700;
-  }
-
-  .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text2); }
-  .empty-state .es-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
-  .empty-state h3 { font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--text); }
-  .empty-state p { font-size: 0.88rem; max-width: 300px; margin: 0 auto; }
-
-  .tab-bar {
-    display: flex;
-    gap: 4px;
-    background: var(--bg3);
-    border-radius: var(--radius-sm);
-    padding: 4px;
-    width: fit-content;
-  }
-  .tab-btn {
-    padding: 8px 20px;
-    border-radius: 8px;
-    font-size: 0.88rem;
-    font-weight: 500;
-    cursor: pointer;
-    border: none;
-    background: transparent;
-    color: var(--text2);
-    transition: all 0.2s;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .tab-btn.active { background: var(--card2); color: var(--text); }
-
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: rgba(108,59,255,0.3); border-radius: 3px; }
-
-  .last-updated { font-size: 0.78rem; color: var(--text3); margin-top: 1rem; text-align: right; }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .fade-in { animation: fadeUp 0.4s ease forwards; }
-
-  @media (max-width: 900px) {
-    .content-grid { grid-template-columns: 1fr; }
-    .form-row { grid-template-columns: 1fr; }
-  }
+@media(max-width:900px){
+  .content-grid{grid-template-columns:1fr;}
+  .form-row{grid-template-columns:1fr;}
+  .sensor-flow{flex-direction:column;align-items:stretch;}
+  .flow-arrow{text-align:center;}
+}
 </style>
 </head>
 <body>
@@ -677,34 +342,44 @@
 <div class="bg-orb orb2"></div>
 <div class="bg-orb orb3"></div>
 
-<!-- LANDING PAGE -->
+<!-- ==================== LANDING ==================== -->
 <div id="landing" class="page active landing">
   <div class="landing-badge">🏙️ Urban Facility Intelligence Platform</div>
-  <h1>Predictive <span>Service Flow</span><br>Optimization</h1>
-  <p class="landing-sub">Real-time monitoring and predictive analytics for high-demand urban facilities. Reduce wait times, optimize staffing, and improve citizen experience.</p>
+  <h1>Predictive <span class="grad">Service Flow</span><br>Optimization</h1>
+  <p class="landing-sub">Real-time monitoring, IoT hardware integration, and predictive analytics for high-demand urban facilities. Reduce wait times, optimize staffing, and improve citizen experience.</p>
+
+  <div class="feature-strip">
+    <div class="feat-pill"><span>🤖</span> AI-Powered Predictions</div>
+    <div class="feat-pill"><span>🔌</span> IoT Sensor Integration</div>
+    <div class="feat-pill"><span>📊</span> Live Queue Analytics</div>
+    <div class="feat-pill"><span>🚪</span> Door Sensor Tracking</div>
+  </div>
+
   <div class="landing-cards">
     <div class="role-card admin-card" onclick="goToLogin('admin')">
       <div class="role-icon admin-icon">🛡️</div>
       <h3>Administrator</h3>
-      <p>Manage facility data, update service metrics, and control real-time information flows.</p>
+      <p>Manage facility data, update service metrics, control sensor simulations, and monitor hardware integration.</p>
       <button class="role-btn">Admin Login →</button>
     </div>
     <div class="role-card user-card" onclick="goToLogin('user')">
       <div class="role-icon user-icon">👤</div>
       <h3>Citizen / Visitor</h3>
-      <p>Check live queue status, facility conditions, and plan your visit to minimize wait times.</p>
+      <p>Check live queue status, facility conditions, occupancy levels, and plan your visit to minimize wait times.</p>
       <button class="role-btn">User Login →</button>
     </div>
   </div>
+
   <div class="stats-strip">
     <div class="stat-item"><div class="num" style="color:#BBA8FF">24+</div><div class="lbl">Facility Types</div></div>
     <div class="stat-item"><div class="num" style="color:#00D2A0">Real-time</div><div class="lbl">Data Updates</div></div>
     <div class="stat-item"><div class="num" style="color:#FF6B35">AI Powered</div><div class="lbl">Predictions</div></div>
+    <div class="stat-item"><div class="num" style="color:#00ffb4">IoT Ready</div><div class="lbl">Hardware</div></div>
     <div class="stat-item"><div class="num" style="color:#4EAEFF">99.9%</div><div class="lbl">Uptime</div></div>
   </div>
 </div>
 
-<!-- LOGIN PAGE -->
+<!-- ==================== LOGIN ==================== -->
 <div id="login" class="page">
   <div class="login-box">
     <button class="login-back" onclick="showPage('landing')">← Back to Home</button>
@@ -727,15 +402,21 @@
   </div>
 </div>
 
-<!-- ADMIN DASHBOARD -->
+<!-- ==================== ADMIN DASHBOARD ==================== -->
 <div id="admin-dash" class="page">
   <nav class="navbar">
-    <div class="logo">Flow<span>Sync</span><em>.</em></div>
+    <div class="logo">Flow<span>Sync</span><em>IQ.</em></div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="switchAdminTab('control',this)">🏢 Control Center</button>
+      <button class="nav-tab" onclick="switchAdminTab('hardware',this)">🔌 Hardware & IoT</button>
+      <button class="nav-tab" onclick="switchAdminTab('records',this)">📊 Records</button>
+    </div>
     <div class="nav-user">
       <span class="nav-badge admin">⚙️ Admin</span>
       <button class="nav-logout" onclick="logout()">Logout</button>
     </div>
   </nav>
+
   <div class="dashboard">
     <div class="dash-header">
       <div>
@@ -744,126 +425,232 @@
       </div>
     </div>
 
-    <div class="facility-selector">
-      <h3>Select Facility Type</h3>
-      <div class="facility-grid" id="facility-chips-admin"></div>
+    <!-- TAB: CONTROL CENTER -->
+    <div class="tab-section active" id="admin-tab-control">
+      <div class="facility-selector">
+        <h3>// Select Facility Type</h3>
+        <div class="facility-grid" id="facility-chips-admin"></div>
+      </div>
+      <div class="location-select">
+        <label>📍 Select Location:</label>
+        <select id="admin-location" onchange="renderAdminOverview()"></select>
+      </div>
+      <div class="overview-grid" id="admin-overview"></div>
+      <div class="content-grid">
+        <div class="admin-panel">
+          <div class="panel-title">
+            <div class="panel-title-icon">📝</div>
+            Update Facility Metrics
+          </div>
+          <div class="form-row">
+            <div class="input-group">
+              <label>Queue Length (persons)</label>
+              <input type="number" id="f-queue" placeholder="e.g. 45" min="0">
+            </div>
+            <div class="input-group">
+              <label>Foot Traffic Count</label>
+              <input type="number" id="f-traffic" placeholder="e.g. 320" min="0">
+            </div>
+          </div>
+          <div class="range-group">
+            <label>Staff Availability <span id="staff-val">7</span>/10</label>
+            <input type="range" min="0" max="10" value="7" id="f-staff" oninput="document.getElementById('staff-val').textContent=this.value">
+          </div>
+          <div class="range-group">
+            <label>Avg Service Duration (min) <span id="svc-val">12</span></label>
+            <input type="range" min="1" max="60" value="12" id="f-service" oninput="document.getElementById('svc-val').textContent=this.value">
+          </div>
+          <div class="form-row">
+            <div class="input-group">
+              <label>Facility Capacity (%)</label>
+              <input type="number" id="f-capacity" placeholder="e.g. 75" min="0" max="100">
+            </div>
+            <div class="input-group">
+              <label>Est. Wait Time (min)</label>
+              <input type="number" id="f-wait" placeholder="e.g. 25" min="0">
+            </div>
+          </div>
+          <div class="input-group">
+            <label>User Category</label>
+            <select id="f-category">
+              <option value="">-- Select Category --</option>
+              <option>General Public</option><option>Senior Citizens</option>
+              <option>Persons with Disability</option><option>Medical Emergency</option>
+              <option>Priority / VIP</option><option>Children / Family</option>
+              <option>Business / Corporate</option><option>Students</option>
+              <option>Tourists / Foreign Nationals</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>Peak Hour Prediction</label>
+            <select id="f-peak">
+              <option>9:00 AM – 11:00 AM</option><option>11:00 AM – 1:00 PM</option>
+              <option>1:00 PM – 3:00 PM</option><option>3:00 PM – 5:00 PM</option>
+              <option>5:00 PM – 7:00 PM</option><option>All Day Busy</option>
+              <option>Currently Off-Peak</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>Operational Status</label>
+            <select id="f-status">
+              <option value="normal">🟢 Normal Operations</option>
+              <option value="busy">🟡 High Demand</option>
+              <option value="critical">🔴 Critical — Overcrowded</option>
+              <option value="closed">⚫ Temporarily Closed</option>
+              <option value="maintenance">🔧 Under Maintenance</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>Admin Notes / Alerts</label>
+            <textarea id="f-notes" placeholder="Any special alerts, closures, or notices for the public..."></textarea>
+          </div>
+          <button class="submit-btn" onclick="submitData()">📡 Publish Update</button>
+          <div class="success-msg" id="success-msg">✅ Data published successfully! Visible to all users.</div>
+        </div>
+
+        <div class="alerts-panel">
+          <div class="panel-title">
+            <div class="panel-title-icon">🔔</div>
+            System Alerts
+          </div>
+          <div id="alert-list"></div>
+        </div>
+      </div>
     </div>
 
-    <div class="location-select">
-      <label>📍 Select Location:</label>
-      <select id="admin-location" onchange="renderAdminOverview()"></select>
+    <!-- TAB: HARDWARE & IoT -->
+    <div class="tab-section" id="admin-tab-hardware">
+      <div class="hw-banner">
+        <span>🔬</span>
+        <div><strong>Prototype Mode:</strong> Physical sensors haven't been deployed yet. This dashboard <strong>simulates sensor behavior</strong>. Once hardware is installed, live data replaces the simulation automatically.</div>
+      </div>
+
+      <div class="hw-stats">
+        <div class="hw-stat">
+          <div class="hw-icon">🚶‍➡️</div>
+          <h4>Entry Count</h4>
+          <p>Timestamped entry events per door sensor.</p>
+          <div class="hw-val" id="c-entry">0</div>
+          <div class="hw-lbl">entered today</div>
+        </div>
+        <div class="hw-stat">
+          <div class="hw-icon">🚶‍⬅️</div>
+          <h4>Exit Count</h4>
+          <p>Outflow tracking for dwell time analysis.</p>
+          <div class="hw-val" id="c-exit">0</div>
+          <div class="hw-lbl">exited today</div>
+        </div>
+        <div class="hw-stat">
+          <div class="hw-icon">📍</div>
+          <h4>Live Occupancy</h4>
+          <p>Auto-computed: entries minus exits.</p>
+          <div class="hw-val" id="c-occ">0</div>
+          <div class="hw-lbl">currently inside</div>
+        </div>
+        <div class="hw-stat">
+          <div class="hw-icon">🤖</div>
+          <h4>AI Confidence</h4>
+          <p>Crowd surge forecast model accuracy.</p>
+          <div class="hw-val" id="c-conf">—</div>
+          <div class="hw-lbl">prediction confidence</div>
+        </div>
+      </div>
+
+      <div class="sim-panel">
+        <div class="sim-top">
+          <h2>🖥️ Live Door Sensor Feed</h2>
+          <div class="sim-live-badge"><div class="live-dot"></div><span id="sim-status">STANDBY</span></div>
+        </div>
+        <div class="sensor-flow">
+          <div class="snode" id="dA">
+            <div style="font-size:1.5rem">🚪</div>
+            <div class="sv" id="dA-v">0</div>
+            <div class="sl">Door A — Entry</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="hub-node">
+            <div class="ht">FLOWSYNC IQ DATA BUS</div>
+            <div class="hv" id="hub-occ">0</div>
+            <div class="hl">Live Occupancy</div>
+          </div>
+          <div class="flow-arrow">←</div>
+          <div class="snode" id="dB">
+            <div style="font-size:1.5rem">🚪</div>
+            <div class="sv" id="dB-v">0</div>
+            <div class="sl">Door B — Exit</div>
+          </div>
+        </div>
+        <div class="sim-log" id="sim-log">
+          <div class="ll"><span class="lt">--:--:--</span><span style="color:var(--text3)">Feed inactive. Press START to begin simulation.</span></div>
+        </div>
+        <div class="sim-controls">
+          <button class="sim-btn" id="simBtn" onclick="toggleSim()">▶️ Start Simulation</button>
+          <button class="sim-btn rst" onclick="resetSim()">↺ Reset</button>
+          <div class="spd-ctrl">
+            <span>Speed:</span>
+            <input type="range" min="1" max="5" value="3" id="simSpd" oninput="document.getElementById('spdLbl').textContent=this.value+'x'; if(simRunning){clearInterval(simIv);startSimIv();}">
+            <span id="spdLbl">3x</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="occ-panel">
+        <div class="occ-header">
+          <h2>📊 Live Occupancy Meter</h2>
+          <div class="occ-big" id="occ-big" style="color:var(--neon)">0</div>
+        </div>
+        <div class="occ-track"><div class="occ-fill" id="occ-bar" style="width:0%;background:var(--neon)"></div></div>
+        <div class="occ-labels"><span>Empty</span><span id="occ-pct">0% capacity</span><span>Max (300)</span></div>
+        <div class="occ-mini">
+          <div class="occ-ms"><div class="mv" style="color:var(--neon)" id="ms-e">0</div><div class="ml">Entries</div></div>
+          <div class="occ-ms"><div class="mv" style="color:var(--blue)" id="ms-x">0</div><div class="ml">Exits</div></div>
+          <div class="occ-ms"><div class="mv" style="color:#f59e0b" id="ms-r">0/min</div><div class="ml">Arrival Rate</div></div>
+        </div>
+      </div>
+
+      <div class="pipeline-panel">
+        <h2>⚙️ Data Pipeline Architecture</h2>
+        <div class="pipeline">
+          <div class="pn"><div class="pi">🚪</div><div class="pt">Door Sensors</div><div class="ps">IoT Hardware</div></div>
+          <div class="pa"><div class="pl"></div><div class="pk">MQTT</div></div>
+          <div class="pn"><div class="pi">🔁</div><div class="pt">Edge Gateway</div><div class="ps">Protocol Bridge</div></div>
+          <div class="pa"><div class="pl"></div><div class="pk">WebSocket</div></div>
+          <div class="pn"><div class="pi">🧠</div><div class="pt">FlowIQ Engine</div><div class="ps">AI Processor</div></div>
+          <div class="pa"><div class="pl"></div><div class="pk">REST API</div></div>
+          <div class="pn"><div class="pi">📊</div><div class="pt">Dashboard</div><div class="ps">This Interface</div></div>
+        </div>
+      </div>
     </div>
 
-    <div class="overview-grid" id="admin-overview"></div>
-
-    <div class="content-grid">
-      <div class="admin-panel">
+    <!-- TAB: RECORDS -->
+    <div class="tab-section" id="admin-tab-records">
+      <div class="data-panel fade-in">
         <div class="panel-title">
-          <div class="panel-title-icon">📝</div>
-          Update Facility Metrics
+          <div class="panel-title-icon">📊</div>
+          All Facility Records
         </div>
-        <div class="form-row">
-          <div class="input-group">
-            <label>Queue Length (persons)</label>
-            <input type="number" id="f-queue" placeholder="e.g. 45" min="0">
-          </div>
-          <div class="input-group">
-            <label>Foot Traffic Count</label>
-            <input type="number" id="f-traffic" placeholder="e.g. 320" min="0">
-          </div>
-        </div>
-        <div class="range-group">
-          <label>Staff Availability <span id="staff-val">7</span>/10</label>
-          <input type="range" min="0" max="10" value="7" id="f-staff" oninput="document.getElementById('staff-val').textContent=this.value">
-        </div>
-        <div class="range-group">
-          <label>Avg Service Duration (min) <span id="svc-val">12</span></label>
-          <input type="range" min="1" max="60" value="12" id="f-service" oninput="document.getElementById('svc-val').textContent=this.value">
-        </div>
-        <div class="form-row">
-          <div class="input-group">
-            <label>Facility Capacity (%)</label>
-            <input type="number" id="f-capacity" placeholder="e.g. 75" min="0" max="100">
-          </div>
-          <div class="input-group">
-            <label>Est. Wait Time (min)</label>
-            <input type="number" id="f-wait" placeholder="e.g. 25" min="0">
-          </div>
-        </div>
-        <div class="input-group">
-          <label>User Category</label>
-          <select id="f-category">
-            <option value="">-- Select Category --</option>
-            <option>General Public</option>
-            <option>Senior Citizens</option>
-            <option>Persons with Disability</option>
-            <option>Medical Emergency</option>
-            <option>Priority / VIP</option>
-            <option>Children / Family</option>
-            <option>Business / Corporate</option>
-            <option>Students</option>
-            <option>Tourists / Foreign Nationals</option>
-          </select>
-        </div>
-        <div class="input-group">
-          <label>Peak Hour Prediction</label>
-          <select id="f-peak">
-            <option>9:00 AM – 11:00 AM</option>
-            <option>11:00 AM – 1:00 PM</option>
-            <option>1:00 PM – 3:00 PM</option>
-            <option>3:00 PM – 5:00 PM</option>
-            <option>5:00 PM – 7:00 PM</option>
-            <option>All Day Busy</option>
-            <option>Currently Off-Peak</option>
-          </select>
-        </div>
-        <div class="input-group">
-          <label>Operational Status</label>
-          <select id="f-status">
-            <option value="normal">🟢 Normal Operations</option>
-            <option value="busy">🟡 High Demand</option>
-            <option value="critical">🔴 Critical — Overcrowded</option>
-            <option value="closed">⚫ Temporarily Closed</option>
-            <option value="maintenance">🔧 Under Maintenance</option>
-          </select>
-        </div>
-        <div class="input-group">
-          <label>Admin Notes / Alerts</label>
-          <textarea id="f-notes" placeholder="Any special alerts, closures, or notices for the public..."></textarea>
-        </div>
-        <button class="submit-btn" onclick="submitData()">📡 Publish Update</button>
-        <div class="success-msg" id="success-msg">✅ Data published successfully! Visible to all users.</div>
-      </div>
-
-      <div class="alerts-panel">
-        <div class="panel-title">
-          <div class="panel-title-icon">🔔</div>
-          System Alerts
-        </div>
-        <div id="alert-list"></div>
+        <div id="admin-table-container"></div>
+        <div class="last-updated" id="admin-last-updated"></div>
       </div>
     </div>
 
-    <div class="data-panel fade-in">
-      <div class="panel-title">
-        <div class="panel-title-icon">📊</div>
-        All Facility Records
-      </div>
-      <div id="admin-table-container"></div>
-      <div class="last-updated" id="admin-last-updated"></div>
-    </div>
   </div>
 </div>
 
-<!-- USER DASHBOARD -->
+<!-- ==================== USER DASHBOARD ==================== -->
 <div id="user-dash" class="page">
   <nav class="navbar">
-    <div class="logo">Flow<span>Sync</span><em>.</em></div>
+    <div class="logo">Flow<span>Sync</span><em>IQ.</em></div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="switchUserTab('live',this)">📡 Live Status</button>
+      <button class="nav-tab" onclick="switchUserTab('sensor',this)">🔌 Sensor View</button>
+    </div>
     <div class="nav-user">
       <span class="nav-badge user">👤 Citizen</span>
       <button class="nav-logout" onclick="logout()">Logout</button>
     </div>
   </nav>
+
   <div class="dashboard">
     <div class="dash-header">
       <div>
@@ -872,383 +659,442 @@
       </div>
     </div>
 
-    <div class="facility-selector">
-      <h3>Filter by Facility Type</h3>
-      <div class="facility-grid" id="facility-chips-user"></div>
+    <!-- TAB: LIVE STATUS -->
+    <div class="tab-section active" id="user-tab-live">
+      <div class="facility-selector">
+        <h3>// Filter by Facility Type</h3>
+        <div class="facility-grid" id="facility-chips-user"></div>
+      </div>
+      <div class="location-select">
+        <label>📍 Your Location:</label>
+        <select id="user-location" onchange="renderUserDash()"></select>
+      </div>
+      <div class="live-grid" id="live-cards"></div>
+      <div class="data-panel fade-in">
+        <div class="panel-title"><div class="panel-title-icon">📋</div>All Facilities — Detailed View</div>
+        <div id="user-table-container"></div>
+        <div class="last-updated" id="user-last-updated"></div>
+      </div>
     </div>
 
-    <div class="location-select">
-      <label>📍 Your Location:</label>
-      <select id="user-location" onchange="renderUserDash()"></select>
-    </div>
-
-    <div class="live-grid" id="live-cards"></div>
-
-    <div class="data-panel fade-in">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
-        <div class="panel-title" style="margin:0">
-          <div class="panel-title-icon">📋</div>
-          Detailed Service Information
+    <!-- TAB: SENSOR VIEW -->
+    <div class="tab-section" id="user-tab-sensor">
+      <div class="hw-banner">
+        <span>📡</span>
+        <div>This view shows <strong>live occupancy data</strong> from IoT door sensors installed at facilities. Green = safe, Amber = filling up, Red = near capacity.</div>
+      </div>
+      <div class="overview-grid">
+        <div class="stat-card c-neon">
+          <span class="sc-icon">🚶‍➡️</span>
+          <div class="sc-val" id="u-entry">—</div>
+          <div class="sc-lbl">Total Entries Today</div>
         </div>
-        <div class="tab-bar">
-          <button class="tab-btn active" onclick="setView('cards',this)">Live Cards</button>
-          <button class="tab-btn" onclick="setView('table',this)">Table View</button>
+        <div class="stat-card c-blue">
+          <span class="sc-icon">🚶‍⬅️</span>
+          <div class="sc-val" id="u-exit">—</div>
+          <div class="sc-lbl">Total Exits Today</div>
+        </div>
+        <div class="stat-card c-green">
+          <span class="sc-icon">📍</span>
+          <div class="sc-val" id="u-occ">—</div>
+          <div class="sc-lbl">Live Occupancy</div>
+        </div>
+        <div class="stat-card c-yellow">
+          <span class="sc-icon">🤖</span>
+          <div class="sc-val" id="u-conf">—</div>
+          <div class="sc-lbl">AI Confidence</div>
         </div>
       </div>
-      <div id="user-table-container"></div>
-      <div class="last-updated" id="user-last-updated"></div>
+      <div class="occ-panel">
+        <div class="occ-header">
+          <h2>📊 Facility Occupancy (Sensor Data)</h2>
+          <div class="occ-big" id="u-occ-big" style="color:var(--neon)">—</div>
+        </div>
+        <div class="occ-track"><div class="occ-fill" id="u-occ-bar" style="width:0%;background:var(--neon)"></div></div>
+        <div class="occ-labels"><span>Empty</span><span id="u-occ-pct">No data yet</span><span>Max (300)</span></div>
+        <div style="padding:1rem;background:rgba(0,255,180,0.04);border:1px dashed rgba(0,255,180,0.2);border-radius:10px;font-size:0.85rem;color:var(--text2);text-align:center;margin-top:1rem;">
+          💡 Sensor data is populated when the admin runs the hardware simulation. Go to <strong style="color:var(--neon)">Admin → Hardware & IoT</strong> to start the sensor feed.
+        </div>
+      </div>
     </div>
+
   </div>
 </div>
 
 <script>
+/* ======================== DATA ======================== */
 const FACILITIES = [
-  { id:'hospital', icon:'🏥', label:'Hospitals' },
-  { id:'airport',  icon:'✈️', label:'Airports' },
-  { id:'bank',     icon:'🏦', label:'Banks' },
-  { id:'govt',     icon:'🏛️', label:'Govt Offices' },
-  { id:'railway',  icon:'🚂', label:'Railway Stations' },
-  { id:'rto',      icon:'🚗', label:'RTO Offices' },
-  { id:'post',     icon:'📮', label:'Post Offices' },
-  { id:'police',   icon:'🚔', label:'Police Stations' },
-  { id:'court',    icon:'⚖️', label:'Courts' },
-  { id:'tax',      icon:'💼', label:'Tax Offices' },
-  { id:'college',  icon:'🎓', label:'Colleges/Schools' },
-  { id:'metro',    icon:'🚇', label:'Metro Stations' },
+  {id:'hospital',icon:'🏥',label:'Hospitals'},{id:'airport',icon:'✈️',label:'Airports'},
+  {id:'bank',icon:'🏦',label:'Banks'},{id:'govt',icon:'🏛️',label:'Govt Offices'},
+  {id:'railway',icon:'🚂',label:'Railway Stations'},{id:'rto',icon:'🚗',label:'RTO Offices'},
+  {id:'post',icon:'📮',label:'Post Offices'},{id:'police',icon:'🚔',label:'Police Stations'},
+  {id:'court',icon:'⚖️',label:'Courts'},{id:'tax',icon:'💼',label:'Tax Offices'},
+  {id:'college',icon:'🎓',label:'Colleges/Schools'},{id:'metro',icon:'🚇',label:'Metro Stations'},
 ];
-
 const LOCATIONS = {
-  hospital: ['AIIMS Delhi','Safdarjung Hospital','Apollo Hospitals Bannerghatta','Manipal Hospital Whitefield','Fortis Hospital BG Road','Victoria Hospital Bangalore','KEM Hospital Mumbai','PGI Chandigarh'],
-  airport:  ['Kempegowda International Airport','Indira Gandhi Intl Airport','Chhatrapati Shivaji Intl Airport','Rajiv Gandhi Intl Airport','Chennai International Airport'],
-  bank:     ['SBI Main Branch Bangalore','HDFC Bank MG Road','Punjab National Bank Connaught Place','Bank of India Nariman Point','Canara Bank Rajajinagar'],
-  govt:     ['BBMP Headquarters Bangalore','Secretariat North Block Delhi','Mantralaya Mumbai','Telangana Secretariat','Chennai Collectorate'],
-  railway:  ['KSR Bangalore City Station','New Delhi Railway Station','Chhatrapati Shivaji Terminus','Howrah Junction','Chennai Central'],
-  rto:      ['RTO Koramangala','RTO Yeshwanthpur','RTO Marathahalli','RTO Mysore Road','RTO Delhi Saket'],
-  post:     ['GPO Bangalore','GPO New Delhi','GPO Mumbai','GPO Chennai','GPO Kolkata'],
-  police:   ['Cubbon Park Police Station','Koramangala Police Station','CP Police HQ Delhi','Lalbazar Kolkata','Crawford Market PS Mumbai'],
-  court:    ['High Court of Karnataka','Patiala House Courts Delhi','Bombay High Court','Madras High Court','Calcutta High Court'],
-  tax:      ['Income Tax Office Bangalore','Income Tax Office Delhi','Income Tax Office Mumbai','IT Office Chennai','GST Office Bangalore'],
-  college:  ['IISc Bangalore','IIT Delhi','IIT Bombay','NIT Surathkal','Delhi University North Campus'],
-  metro:    ['Majestic Metro Station','Rajajinagar Metro','Whitefield Metro','Kashmere Gate Metro Delhi','Versova Metro Mumbai'],
+  hospital:['AIIMS Delhi','Safdarjung Hospital','Apollo Hospitals Bannerghatta','Manipal Hospital Whitefield','Fortis Hospital BG Road','Victoria Hospital Bangalore','KEM Hospital Mumbai','PGI Chandigarh'],
+  airport:['Kempegowda International Airport','Indira Gandhi Intl Airport','Chhatrapati Shivaji Intl Airport','Rajiv Gandhi Intl Airport','Chennai International Airport'],
+  bank:['SBI Main Branch Bangalore','HDFC Bank MG Road','Punjab National Bank Connaught Place','Bank of India Nariman Point','Canara Bank Rajajinagar'],
+  govt:['BBMP Headquarters Bangalore','Secretariat North Block Delhi','Mantralaya Mumbai','Telangana Secretariat','Chennai Collectorate'],
+  railway:['KSR Bangalore City Station','New Delhi Railway Station','Chhatrapati Shivaji Terminus','Howrah Junction','Chennai Central'],
+  rto:['RTO Koramangala','RTO Yeshwanthpur','RTO Marathahalli','RTO Mysore Road','RTO Delhi Saket'],
+  post:['GPO Bangalore','GPO New Delhi','GPO Mumbai','GPO Chennai','GPO Kolkata'],
+  police:['Cubbon Park Police Station','Koramangala Police Station','CP Police HQ Delhi','Lalbazar Kolkata','Crawford Market PS Mumbai'],
+  court:['High Court of Karnataka','Patiala House Courts Delhi','Bombay High Court','Madras High Court','Calcutta High Court'],
+  tax:['Income Tax Office Bangalore','Income Tax Office Delhi','Income Tax Office Mumbai','IT Office Chennai','GST Office Bangalore'],
+  college:['IISc Bangalore','IIT Delhi','IIT Bombay','NIT Surathkal','Delhi University North Campus'],
+  metro:['Majestic Metro Station','Rajajinagar Metro','Whitefield Metro','Kashmere Gate Metro Delhi','Versova Metro Mumbai'],
 };
 
 let facilityData = {};
 let currentRole = '';
-let selectedFacilityAdmin = 'hospital';
-let selectedFacilityUser  = 'hospital';
+let selFacAdmin = 'hospital';
+let selFacUser  = 'hospital';
 
+/* ======================== ROUTING ======================== */
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
-
 function goToLogin(role) {
   currentRole = role;
-  document.getElementById('login-title').textContent = role === 'admin' ? 'Admin Login' : 'Citizen Login';
-  document.getElementById('login-sub').textContent   = role === 'admin' ? 'Access the facility management dashboard' : 'Check live queue status and facility conditions';
-  document.getElementById('login-btn').className     = 'login-btn' + (role === 'user' ? ' green' : '');
+  document.getElementById('login-title').textContent = role==='admin' ? 'Admin Login' : 'Citizen Login';
+  document.getElementById('login-sub').textContent   = role==='admin' ? 'Access the facility management dashboard' : 'Check live queue status and facility conditions';
+  document.getElementById('login-btn').className     = 'login-btn' + (role==='user' ? ' green' : '');
   document.getElementById('login-user').value = '';
   document.getElementById('login-pass').value = '';
   document.getElementById('login-error').style.display = 'none';
   showPage('login');
 }
-
 function doLogin() {
   const u = document.getElementById('login-user').value.trim();
   const p = document.getElementById('login-pass').value.trim();
   const err = document.getElementById('login-error');
-  if (currentRole === 'admin' && u === 'admin' && p === 'admin123') {
+  if (currentRole==='admin' && u==='admin' && p==='admin123') {
     showPage('admin-dash'); initAdmin();
-  } else if (currentRole === 'user' && u === 'user' && p === 'user123') {
+  } else if (currentRole==='user' && u==='user' && p==='user123') {
     showPage('user-dash'); initUser();
   } else {
-    err.style.display = 'block';
-    setTimeout(() => err.style.display = 'none', 3000);
+    err.style.display='block';
+    setTimeout(()=>err.style.display='none',3000);
   }
 }
-
 function logout() { showPage('landing'); }
 
+/* ======================== TABS ======================== */
+function switchAdminTab(tab, btn) {
+  document.querySelectorAll('#admin-dash .nav-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#admin-dash .tab-section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('admin-tab-'+tab).classList.add('active');
+  if (tab==='records') renderAdminTable();
+}
+function switchUserTab(tab, btn) {
+  document.querySelectorAll('#user-dash .nav-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#user-dash .tab-section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('user-tab-'+tab).classList.add('active');
+  if (tab==='sensor') updateUserSensorView();
+}
+
+/* ======================== CHIPS & SELECTS ======================== */
 function buildChips(containerId, role) {
   const container = document.getElementById(containerId);
-  const selected  = role === 'admin' ? selectedFacilityAdmin : selectedFacilityUser;
+  const selected  = role==='admin' ? selFacAdmin : selFacUser;
   container.innerHTML = '';
   FACILITIES.forEach(f => {
     const chip = document.createElement('div');
-    chip.className = 'fac-chip' + (f.id === selected ? ' active' : '');
+    chip.className = 'fac-chip' + (f.id===selected ? ' active' : '');
     chip.innerHTML = `<span class="fac-icon">${f.icon}</span>${f.label}`;
     chip.onclick = () => {
-      if (role === 'admin') { selectedFacilityAdmin = f.id; initAdmin(); }
-      else                  { selectedFacilityUser  = f.id; renderUserDash(); }
+      if (role==='admin') { selFacAdmin=f.id; initAdmin(); }
+      else { selFacUser=f.id; renderUserDash(); }
     };
     container.appendChild(chip);
   });
 }
-
 function buildLocationSelect(selectId, facility) {
-  const sel  = document.getElementById(selectId);
-  const locs = LOCATIONS[facility] || [];
-  sel.innerHTML = locs.map(l => `<option value="${l}">${l}</option>`).join('');
+  const sel = document.getElementById(selectId);
+  sel.innerHTML = (LOCATIONS[facility]||[]).map(l=>`<option value="${l}">${l}</option>`).join('');
 }
 
-/* ---- ADMIN ---- */
+/* ======================== ADMIN ======================== */
 function initAdmin() {
-  buildChips('facility-chips-admin', 'admin');
-  buildLocationSelect('admin-location', selectedFacilityAdmin);
+  buildChips('facility-chips-admin','admin');
+  buildLocationSelect('admin-location', selFacAdmin);
   renderAdminOverview();
-  renderAdminTable();
   renderAlerts();
   updateClock('admin-time');
 }
-
 function renderAdminOverview() {
-  const fac = selectedFacilityAdmin;
-  const loc = document.getElementById('admin-location')?.value || '';
-  const d   = (facilityData[fac] && facilityData[fac][loc]) || {};
+  const fac = selFacAdmin;
+  const loc = document.getElementById('admin-location')?.value||'';
+  const d   = (facilityData[fac]&&facilityData[fac][loc])||{};
   const items = [
-    { icon:'👥', val: d.queue   !== undefined ? d.queue       : '—', lbl:'Queue Length',    cls:'c-purple' },
-    { icon:'🚶', val: d.traffic !== undefined ? d.traffic     : '—', lbl:'Foot Traffic',    cls:'c-blue'   },
-    { icon:'⏱️', val: d.service !== undefined ? d.service+'m' : '—', lbl:'Service Duration',cls:'c-orange' },
-    { icon:'👨‍💼', val: d.staff   !== undefined ? d.staff+'/10' : '—', lbl:'Staff Available', cls:'c-green'  },
-    { icon:'📊', val: d.capacity!== undefined ? d.capacity+'%': '—', lbl:'Capacity',        cls:'c-red'    },
-    { icon:'⏳', val: d.wait    !== undefined ? d.wait+'m'    : '—', lbl:'Est. Wait Time',  cls:'c-yellow' },
+    {icon:'👥',val:d.queue!==undefined?d.queue:'—',lbl:'Queue Length',cls:'c-purple'},
+    {icon:'🚶',val:d.traffic!==undefined?d.traffic:'—',lbl:'Foot Traffic',cls:'c-blue'},
+    {icon:'⏱️',val:d.service!==undefined?d.service+'m':'—',lbl:'Service Duration',cls:'c-orange'},
+    {icon:'👨‍💼',val:d.staff!==undefined?d.staff+'/10':'—',lbl:'Staff Available',cls:'c-green'},
+    {icon:'📊',val:d.capacity!==undefined?d.capacity+'%':'—',lbl:'Capacity',cls:'c-red'},
+    {icon:'⏳',val:d.wait!==undefined?d.wait+'m':'—',lbl:'Est. Wait Time',cls:'c-yellow'},
   ];
-  document.getElementById('admin-overview').innerHTML = items.map(it =>
-    `<div class="stat-card ${it.cls}">
-       <span class="sc-icon">${it.icon}</span>
-       <div class="sc-val">${it.val}</div>
-       <div class="sc-lbl">${it.lbl}</div>
-     </div>`
+  document.getElementById('admin-overview').innerHTML = items.map(it=>
+    `<div class="stat-card ${it.cls}"><span class="sc-icon">${it.icon}</span><div class="sc-val">${it.val}</div><div class="sc-lbl">${it.lbl}</div></div>`
   ).join('');
 }
-
 function submitData() {
-  const fac = selectedFacilityAdmin;
+  const fac = selFacAdmin;
   const loc = document.getElementById('admin-location').value;
-  if (!facilityData[fac]) facilityData[fac] = {};
+  if (!facilityData[fac]) facilityData[fac]={};
   facilityData[fac][loc] = {
-    queue:    parseInt(document.getElementById('f-queue').value)    || 0,
-    traffic:  parseInt(document.getElementById('f-traffic').value)  || 0,
+    queue:    parseInt(document.getElementById('f-queue').value)||0,
+    traffic:  parseInt(document.getElementById('f-traffic').value)||0,
     staff:    parseInt(document.getElementById('f-staff').value),
     service:  parseInt(document.getElementById('f-service').value),
-    capacity: parseInt(document.getElementById('f-capacity').value) || 0,
-    wait:     parseInt(document.getElementById('f-wait').value)     || 0,
+    capacity: parseInt(document.getElementById('f-capacity').value)||0,
+    wait:     parseInt(document.getElementById('f-wait').value)||0,
     category: document.getElementById('f-category').value,
     peak:     document.getElementById('f-peak').value,
     status:   document.getElementById('f-status').value,
     notes:    document.getElementById('f-notes').value,
-    timestamp: new Date().toLocaleTimeString(),
+    timestamp:new Date().toLocaleTimeString(),
   };
   const msg = document.getElementById('success-msg');
-  msg.style.display = 'block';
-  setTimeout(() => msg.style.display = 'none', 3000);
+  msg.style.display='block';
+  setTimeout(()=>msg.style.display='none',3000);
   renderAdminOverview();
-  renderAdminTable();
   renderAlerts();
 }
-
 function statusBadge(s) {
-  const map = {
-    normal:      ['badge-green',  '🟢 Normal'],
-    busy:        ['badge-orange', '🟡 Busy'],
-    critical:    ['badge-red',    '🔴 Critical'],
-    closed:      ['badge-red',    '⚫ Closed'],
-    maintenance: ['badge-orange', '🔧 Maintenance'],
-  };
-  const [cls, label] = map[s] || ['badge-blue', s];
+  const map={normal:['badge-green','🟢 Normal'],busy:['badge-orange','🟡 Busy'],critical:['badge-red','🔴 Critical'],closed:['badge-red','⚫ Closed'],maintenance:['badge-orange','🔧 Maintenance']};
+  const [cls,label]=map[s]||['badge-blue',s];
   return `<span class="badge ${cls}">${label}</span>`;
 }
-
 function renderAdminTable() {
   const container = document.getElementById('admin-table-container');
-  const rows = [];
-  FACILITIES.forEach(f => {
-    (LOCATIONS[f.id] || []).forEach(l => {
-      const d = facilityData[f.id] && facilityData[f.id][l];
-      if (d) rows.push({ ...d, facObj: f, location: l });
+  const rows=[];
+  FACILITIES.forEach(f=>{
+    (LOCATIONS[f.id]||[]).forEach(l=>{
+      const d=facilityData[f.id]&&facilityData[f.id][l];
+      if(d) rows.push({...d,facObj:f,location:l});
     });
   });
-  if (!rows.length) {
-    container.innerHTML = `<div class="empty-state"><div class="es-icon">📡</div><h3>No Data Published Yet</h3><p>Select a facility and publish metrics using the form above.</p></div>`;
+  if(!rows.length){
+    container.innerHTML=`<div class="empty-state"><div class="es-icon">📡</div><h3>No Data Published Yet</h3><p>Select a facility and publish metrics using the form above.</p></div>`;
     return;
   }
-  container.innerHTML = `<table class="data-table">
-    <thead><tr>
-      <th>Facility</th><th>Location</th><th>Queue</th><th>Traffic</th><th>Service</th><th>Staff</th><th>Capacity</th><th>Wait</th><th>Status</th><th>Category</th><th>Updated</th>
-    </tr></thead>
-    <tbody>${rows.map(r => `<tr>
-      <td>${r.facObj.icon} ${r.facObj.label}</td>
-      <td>${r.location}</td>
-      <td><strong>${r.queue}</strong></td>
-      <td>${r.traffic}</td>
-      <td>${r.service}m</td>
-      <td>${r.staff}/10</td>
-      <td>
-        <div class="flow-bar"><div class="flow-fill" style="width:${r.capacity}%;background:${r.capacity>80?'var(--red)':r.capacity>60?'var(--orange)':'var(--green)'}"></div></div>
-        ${r.capacity}%
-      </td>
-      <td>${r.wait}m</td>
-      <td>${statusBadge(r.status)}</td>
-      <td>${r.category ? `<span class="badge badge-blue">${r.category}</span>` : '—'}</td>
-      <td style="color:var(--text3)">${r.timestamp}</td>
-    </tr>`).join('')}</tbody>
-  </table>`;
-  document.getElementById('admin-last-updated').textContent = 'Last updated: ' + new Date().toLocaleString();
+  container.innerHTML=`<table class="data-table">
+    <thead><tr><th>Facility</th><th>Location</th><th>Queue</th><th>Traffic</th><th>Service</th><th>Staff</th><th>Capacity</th><th>Wait</th><th>Status</th><th>Category</th><th>Updated</th></tr></thead>
+    <tbody>${rows.map(r=>`<tr>
+      <td>${r.facObj.icon} ${r.facObj.label}</td><td>${r.location}</td>
+      <td><strong>${r.queue}</strong></td><td>${r.traffic}</td><td>${r.service}m</td><td>${r.staff}/10</td>
+      <td><div class="flow-bar"><div class="flow-fill" style="width:${r.capacity}%;background:${r.capacity>80?'var(--red)':r.capacity>60?'var(--orange)':'var(--green)'}"></div></div> ${r.capacity}%</td>
+      <td>${r.wait}m</td><td>${statusBadge(r.status)}</td>
+      <td>${r.category?`<span class="badge badge-blue">${r.category}</span>`:'—'}</td>
+      <td style="color:var(--text3);font-family:var(--mono);font-size:0.78rem">${r.timestamp}</td>
+    </tr>`).join('')}</tbody></table>`;
+  document.getElementById('admin-last-updated').textContent='Last updated: '+new Date().toLocaleString();
 }
-
 function renderAlerts() {
-  const list   = document.getElementById('alert-list');
-  const alerts = [];
-  FACILITIES.forEach(f => {
-    (LOCATIONS[f.id] || []).forEach(l => {
-      const d = facilityData[f.id] && facilityData[f.id][l];
-      if (!d) return;
-      if (d.capacity > 90 || d.status === 'critical')
-        alerts.push({ severity:'high', title:`${f.icon} ${l}`, sub:`Capacity at ${d.capacity}% — Overcrowded!` });
-      else if (d.capacity > 70 || d.wait > 30)
-        alerts.push({ severity:'med',  title:`${f.icon} ${l}`, sub:`High demand — Wait time ${d.wait}m` });
+  const list=document.getElementById('alert-list');
+  const alerts=[];
+  FACILITIES.forEach(f=>{
+    (LOCATIONS[f.id]||[]).forEach(l=>{
+      const d=facilityData[f.id]&&facilityData[f.id][l];
+      if(!d) return;
+      if(d.capacity>90||d.status==='critical')
+        alerts.push({severity:'high',title:`${f.icon} ${l}`,sub:`Capacity at ${d.capacity}% — Overcrowded!`});
+      else if(d.capacity>70||d.wait>30)
+        alerts.push({severity:'med',title:`${f.icon} ${l}`,sub:`High demand — Wait time ${d.wait}m`});
       else
-        alerts.push({ severity:'low',  title:`${f.icon} ${l}`, sub:'Operating normally' });
+        alerts.push({severity:'low',title:`${f.icon} ${l}`,sub:'Operating normally'});
     });
   });
-  if (!alerts.length) alerts.push({ severity:'low', title:'All systems nominal', sub:'No published data yet' });
-  list.innerHTML = alerts.slice(0, 8).map(a =>
-    `<div class="alert-item">
-       <div class="alert-dot ${a.severity}"></div>
-       <div class="alert-content">
-         <div class="al-title">${a.title}</div>
-         <div class="al-sub">${a.sub}</div>
-       </div>
-     </div>`
+  if(!alerts.length) alerts.push({severity:'low',title:'All systems nominal',sub:'No published data yet'});
+  list.innerHTML=alerts.slice(0,8).map(a=>
+    `<div class="alert-item"><div class="alert-dot ${a.severity}"></div><div class="alert-content"><div class="al-title">${a.title}</div><div class="al-sub">${a.sub}</div></div></div>`
   ).join('');
 }
 
-/* ---- USER ---- */
+/* ======================== USER ======================== */
 function initUser() {
-  buildChips('facility-chips-user', 'user');
-  buildLocationSelect('user-location', selectedFacilityUser);
+  buildChips('facility-chips-user','user');
+  buildLocationSelect('user-location', selFacUser);
   renderUserDash();
   updateClock('user-time');
 }
-
 function renderUserDash() {
-  buildChips('facility-chips-user', 'user');
-  buildLocationSelect('user-location', selectedFacilityUser);
+  buildChips('facility-chips-user','user');
+  buildLocationSelect('user-location', selFacUser);
   renderLiveCards();
   renderUserTable();
 }
-
 function renderLiveCards() {
   const container = document.getElementById('live-cards');
-  const fac    = selectedFacilityUser;
-  const locs   = LOCATIONS[fac] || [];
-  const facObj = FACILITIES.find(f => f.id === fac);
-  const cards  = locs.map(l => {
-    const d = facilityData[fac] && facilityData[fac][l];
-    if (!d) return '';
-    const cap   = d.capacity || 0;
-    const circ  = 2 * Math.PI * 35;
-    const fill  = circ - (cap / 100) * circ;
-    const color = cap > 80 ? 'var(--red)' : cap > 60 ? 'var(--orange)' : 'var(--green)';
+  const fac=selFacUser;
+  const locs=LOCATIONS[fac]||[];
+  const facObj=FACILITIES.find(f=>f.id===fac);
+  const cards=locs.map(l=>{
+    const d=facilityData[fac]&&facilityData[fac][l];
+    if(!d) return '';
+    const cap=d.capacity||0;
+    const circ=2*Math.PI*35;
+    const fill=circ-(cap/100)*circ;
+    const color=cap>80?'var(--red)':cap>60?'var(--orange)':'var(--green)';
     return `<div class="live-card fade-in">
       <div class="live-card-header">
-        <div class="lc-title"><span class="lc-icon">${facObj.icon}</span>${l}</div>
+        <div class="lc-title">${facObj.icon} ${l}</div>
         <div class="live-indicator"><div class="live-dot"></div>Live</div>
       </div>
       <div class="capacity-ring">
-        <svg viewBox="0 0 80 80">
-          <circle class="ring-bg" cx="40" cy="40" r="35"/>
-          <circle class="ring-fill" cx="40" cy="40" r="35" stroke="${color}"
-            stroke-dasharray="${circ - fill} ${fill}"/>
-        </svg>
+        <svg viewBox="0 0 80 80"><circle class="ring-bg" cx="40" cy="40" r="35"/>
+        <circle class="ring-fill" cx="40" cy="40" r="35" stroke="${color}" stroke-dasharray="${circ-fill} ${fill}"/></svg>
         <div class="ring-label" style="color:${color}">${cap}%</div>
       </div>
       <div class="metric-row"><span class="m-key">👥 Queue Length</span><span class="m-val">${d.queue} persons</span></div>
-      <div class="metric-row"><span class="m-key">⏳ Est. Wait Time</span>
-        <span class="m-val" style="color:${d.wait>30?'var(--red)':d.wait>15?'var(--orange)':'var(--green)'}">${d.wait} min</span></div>
+      <div class="metric-row"><span class="m-key">⏳ Est. Wait Time</span><span class="m-val" style="color:${d.wait>30?'var(--red)':d.wait>15?'var(--orange)':'var(--green)'}">${d.wait} min</span></div>
       <div class="metric-row"><span class="m-key">🚶 Foot Traffic</span><span class="m-val">${d.traffic}</span></div>
       <div class="metric-row"><span class="m-key">⏱️ Service Time</span><span class="m-val">${d.service} min</span></div>
       <div class="metric-row"><span class="m-key">👨‍💼 Staff On Duty</span><span class="m-val">${d.staff}/10</span></div>
       <div class="metric-row"><span class="m-key">🕐 Peak Hours</span><span class="m-val" style="font-size:0.8rem">${d.peak}</span></div>
       <div class="metric-row"><span class="m-key">Status</span><span>${statusBadge(d.status)}</span></div>
-      ${d.notes ? `<div style="margin-top:12px;background:rgba(255,255,255,0.04);border-radius:8px;padding:10px;font-size:0.82rem;color:var(--text2)">📢 ${d.notes}</div>` : ''}
+      ${d.notes?`<div style="margin-top:10px;background:rgba(255,255,255,0.04);border-radius:8px;padding:10px;font-size:0.82rem;color:var(--text2)">📢 ${d.notes}</div>`:''}
     </div>`;
   }).join('');
-  container.innerHTML = cards || `<div class="empty-state" style="grid-column:1/-1">
-    <div class="es-icon">${facObj?.icon || '🏢'}</div>
-    <h3>No Live Data Available</h3>
-    <p>Facility administrators haven't published data for this location yet. Check back soon!</p>
-  </div>`;
+  container.innerHTML=cards||`<div class="empty-state" style="grid-column:1/-1"><div class="es-icon">${facObj?.icon||'🏢'}</div><h3>No Live Data Available</h3><p>Facility administrators haven't published data for this location yet. Check back soon!</p></div>`;
 }
-
 function renderUserTable() {
-  const container = document.getElementById('user-table-container');
-  const rows = [];
-  FACILITIES.forEach(f => {
-    (LOCATIONS[f.id] || []).forEach(l => {
-      const d = facilityData[f.id] && facilityData[f.id][l];
-      if (d) rows.push({ ...d, facObj: f, location: l });
+  const container=document.getElementById('user-table-container');
+  const rows=[];
+  FACILITIES.forEach(f=>{
+    (LOCATIONS[f.id]||[]).forEach(l=>{
+      const d=facilityData[f.id]&&facilityData[f.id][l];
+      if(d) rows.push({...d,facObj:f,location:l});
     });
   });
-  if (!rows.length) {
-    container.innerHTML = `<div class="empty-state"><div class="es-icon">📡</div><h3>No Data Available Yet</h3><p>Admins have not published any facility data. Please check back later.</p></div>`;
+  if(!rows.length){
+    container.innerHTML=`<div class="empty-state"><div class="es-icon">📡</div><h3>No Data Available Yet</h3><p>Admins have not published any facility data. Please check back later.</p></div>`;
     return;
   }
-  container.innerHTML = `<table class="data-table">
-    <thead><tr>
-      <th>Facility</th><th>Location</th><th>Queue</th><th>Wait</th><th>Capacity</th><th>Service</th><th>Staff</th><th>Category</th><th>Status</th><th>Peak Hours</th>
-    </tr></thead>
-    <tbody>${rows.map(r => `<tr>
-      <td>${r.facObj.icon} ${r.facObj.label}</td>
-      <td>${r.location}</td>
+  container.innerHTML=`<table class="data-table">
+    <thead><tr><th>Facility</th><th>Location</th><th>Queue</th><th>Wait</th><th>Capacity</th><th>Service</th><th>Staff</th><th>Category</th><th>Status</th><th>Peak Hours</th></tr></thead>
+    <tbody>${rows.map(r=>`<tr>
+      <td>${r.facObj.icon} ${r.facObj.label}</td><td>${r.location}</td>
       <td><strong>${r.queue}</strong> persons</td>
       <td style="color:${r.wait>30?'var(--red)':r.wait>15?'var(--orange)':'var(--green)'}">${r.wait}m</td>
-      <td>
-        <div class="flow-bar"><div class="flow-fill" style="width:${r.capacity}%;background:${r.capacity>80?'var(--red)':r.capacity>60?'var(--orange)':'var(--green)'}"></div></div>
-        ${r.capacity}%
-      </td>
-      <td>${r.service}m</td>
-      <td>${r.staff}/10</td>
-      <td>${r.category ? `<span class="badge badge-blue">${r.category}</span>` : '—'}</td>
+      <td><div class="flow-bar"><div class="flow-fill" style="width:${r.capacity}%;background:${r.capacity>80?'var(--red)':r.capacity>60?'var(--orange)':'var(--green)'}"></div></div> ${r.capacity}%</td>
+      <td>${r.service}m</td><td>${r.staff}/10</td>
+      <td>${r.category?`<span class="badge badge-blue">${r.category}</span>`:'—'}</td>
       <td>${statusBadge(r.status)}</td>
-      <td style="font-size:0.8rem;color:var(--text2)">${r.peak}</td>
-    </tr>`).join('')}</tbody>
-  </table>`;
-  document.getElementById('user-last-updated').textContent = 'Data as of: ' + new Date().toLocaleString();
+      <td style="font-size:0.78rem;color:var(--text2)">${r.peak}</td>
+    </tr>`).join('')}</tbody></table>`;
+  document.getElementById('user-last-updated').textContent='Data as of: '+new Date().toLocaleString();
 }
 
-function setView(view, btn) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  const liveGrid  = document.getElementById('live-cards');
-  const tableView = document.getElementById('user-table-container');
-  if (view === 'cards') {
-    liveGrid.style.display  = 'grid';
-    tableView.style.display = 'none';
-  } else {
-    liveGrid.style.display  = 'none';
-    tableView.style.display = 'block';
-  }
+/* ======================== SENSOR SIMULATION ======================== */
+let simRunning=false, simIv=null, entries=0, exits=0, recentArr=[];
+const MAX_OCC=300;
+
+function toggleSim(){ simRunning ? stopSim() : startSim(); }
+function startSim(){
+  simRunning=true;
+  document.getElementById('simBtn').textContent='⏹️ Stop Simulation';
+  document.getElementById('simBtn').classList.add('stop');
+  document.getElementById('sim-status').textContent='LIVE';
+  startSimIv();
+}
+function startSimIv(){
+  simIv=setInterval(()=>{
+    const occ=entries-exits;
+    if(Math.random()>0.42 && occ<MAX_OCC){ entries++; document.getElementById('dA-v').textContent=Math.floor(Math.random()*8)+2; flashNode('dA'); addSimLog('entry'); }
+    else if(occ>0){ exits++; document.getElementById('dB-v').textContent=Math.floor(Math.random()*6)+1; flashNode('dB'); addSimLog('exit'); }
+    renderSim();
+  }, Math.round(2000/+document.getElementById('simSpd').value));
+}
+function stopSim(){
+  simRunning=false; clearInterval(simIv);
+  document.getElementById('simBtn').textContent='▶️ Start Simulation';
+  document.getElementById('simBtn').classList.remove('stop');
+  document.getElementById('sim-status').textContent='PAUSED';
+}
+function resetSim(){
+  stopSim(); entries=0; exits=0; recentArr=[]; renderSim();
+  document.getElementById('sim-log').innerHTML='<div class="ll"><span class="lt">--:--:--</span><span style="color:var(--text3)">Reset. Press START to begin.</span></div>';
+  document.getElementById('sim-status').textContent='STANDBY';
+  ['dA-v','dB-v'].forEach(id=>document.getElementById(id).textContent='0');
+}
+function renderSim(){
+  const occ=Math.max(0,entries-exits);
+  const pct=Math.min(100,Math.round(occ/MAX_OCC*100));
+  const col=pct<50?'var(--neon)':pct<80?'#f59e0b':'var(--red)';
+  // Admin hardware view
+  document.getElementById('hub-occ').textContent=occ;
+  document.getElementById('occ-big').textContent=occ;
+  document.getElementById('occ-big').style.color=col;
+  document.getElementById('occ-bar').style.width=pct+'%';
+  document.getElementById('occ-bar').style.background=col;
+  document.getElementById('occ-pct').textContent=pct+'% capacity';
+  document.getElementById('ms-e').textContent=entries;
+  document.getElementById('ms-x').textContent=exits;
+  document.getElementById('c-entry').textContent=entries;
+  document.getElementById('c-exit').textContent=exits;
+  document.getElementById('c-occ').textContent=occ;
+  const now=Date.now();
+  recentArr=recentArr.filter(t=>now-t<60000);
+  recentArr.push(now);
+  document.getElementById('ms-r').textContent=recentArr.length+'/min';
+  const conf=Math.min(98,60+Math.floor(entries/5));
+  document.getElementById('c-conf').textContent=conf+'%';
+  // User sensor view
+  document.getElementById('u-entry').textContent=entries;
+  document.getElementById('u-exit').textContent=exits;
+  document.getElementById('u-occ').textContent=occ;
+  document.getElementById('u-conf').textContent=conf+'%';
+  document.getElementById('u-occ-big').textContent=occ;
+  document.getElementById('u-occ-big').style.color=col;
+  document.getElementById('u-occ-bar').style.width=pct+'%';
+  document.getElementById('u-occ-bar').style.background=col;
+  document.getElementById('u-occ-pct').textContent=pct+'% capacity';
+}
+function addSimLog(type){
+  const log=document.getElementById('sim-log');
+  const ts=new Date().toTimeString().slice(0,8);
+  const occ=Math.max(0,entries-exits);
+  const d=document.createElement('div'); d.className='ll';
+  d.innerHTML=type==='entry'
+    ? `<span class="lt">${ts}</span><span class="le">ENTRY  Door-A  occ→${occ}</span>`
+    : `<span class="lt">${ts}</span><span class="lx">EXIT   Door-B  occ→${occ}</span>`;
+  log.insertBefore(d,log.firstChild);
+  if(log.children.length>40) log.removeChild(log.lastChild);
+}
+function flashNode(id){
+  const el=document.getElementById(id);
+  el.classList.remove('active-flash','fl');
+  void el.offsetWidth;
+  el.classList.add('active-flash','fl');
+  setTimeout(()=>el.classList.remove('fl'),400);
+}
+function updateUserSensorView(){
+  renderSim();
 }
 
-function updateClock(id) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  const tick = () => {
-    el.textContent = '📅 ' + new Date().toLocaleString('en-IN', {
-      weekday:'long', year:'numeric', month:'long', day:'numeric',
-      hour:'2-digit', minute:'2-digit', second:'2-digit'
-    });
+/* ======================== CLOCK ======================== */
+function updateClock(id){
+  const el=document.getElementById(id);
+  if(!el) return;
+  const tick=()=>{
+    el.textContent='📅 '+new Date().toLocaleString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});
   };
-  tick();
-  setInterval(tick, 1000);
+  tick(); setInterval(tick,1000);
 }
 
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && document.getElementById('login').classList.contains('active')) doLogin();
+/* ======================== KEYBOARD ======================== */
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&document.getElementById('login').classList.contains('active')) doLogin();
 });
 </script>
 </body>
 </html>
+
        
 
